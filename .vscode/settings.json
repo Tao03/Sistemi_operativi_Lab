@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "signal.h": "c",
-        "alimentatore.h": "c"
+        "alimentatore.h": "c",
+        "ipc.h": "c"
     }
 }

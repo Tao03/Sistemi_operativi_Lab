@@ -1,0 +1,5 @@
+
+gcc -c Headers/master.c
+gcc -c Master.c
+gcc Master.o master.o -o a
+./a
