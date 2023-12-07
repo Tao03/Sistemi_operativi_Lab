@@ -2,6 +2,8 @@
     "files.associations": {
         "signal.h": "c",
         "alimentatore.h": "c",
-        "ipc.h": "c"
+        "ipc.h": "c",
+        "master.h": "c",
+        "wait.h": "c"
     }
 }

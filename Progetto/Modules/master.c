@@ -10,13 +10,11 @@
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include "master.h"
-void SetSemaforoA()
+void setSemaforo()
 {
     key_t key = 1234;
     int id=semget(key, 3, IPC_CREAT);
     semctl(id, 0, SETVAL, 1);
-    semctl(id, 1, SETVAL, 1);
-    semctl(id, 2, SETVAL, 1);
-    printf("Semaforo settato");
 
+    
 }
