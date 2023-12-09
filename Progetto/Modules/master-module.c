@@ -11,12 +11,16 @@
 #include <sys/sem.h>
 #include <sys/shm.h>
 #include "../Headers/master.h"
-
+# define KEY_SEMAFORO 1234
+# define KEY_MEMORIA_CONDIVISA 1111
 
 void setSemaforo()
 {
-    key_t key = 1234;
-    int id=semget(key, 3, IPC_CREAT);
+    int id=semget(KEY_SEMAFORO, 3, IPC_CREAT);
+    if(id==-1){
+        perror("Errore nella creazione del semaforo: ");
+        exit(EXIT_FAILURE);
+    }
     semctl(id, 0, SETVAL, 1);
     semctl(id, 1, SETVAL, 1);
     semctl(id, 2, SETVAL, 1);    
@@ -24,7 +28,6 @@ void setSemaforo()
 
 int setMemoriaCondivisa() // id = 32819
 {
-    key_t key= 1111;
     struct memCond
     {
         int * vPid; //vettore dei pid degli atomi
@@ -32,6 +35,11 @@ int setMemoriaCondivisa() // id = 32819
         int eTot;   //energia totale sprigionata
 
     }dummy; //è solo per la creazione della memoria condivisa
-    int id = shmget(key, sizeof(dummy), IPC_CREAT | 0666);
+    int id = shmget(KEY_MEMORIA_CONDIVISA, sizeof(dummy), IPC_CREAT | 0666);
+    if(id==-1){
+        perror("Errore nella creazione della memoria condivisa: ");
+        exit(EXIT_FAILURE);
+    }
+    printf("CHECKPOINT: MEMORIA CONDIVISA CREATA CON SUCCESSO!");
     return id;
 }
