@@ -1,14 +1,5 @@
-
-gcc -c Headers/master.c
-gcc -c Master.c
-gcc Master.o master.o -o a
-./a
-
-
-OPPURE
-
-
-gcc -c Headers/master.c
+ATTACCARE MODULI OGGETTO A FILE C:
+gcc -c Modules/master-module.c
 gcc Master.c master.o -o a
 ./a
 
@@ -36,3 +27,9 @@ struct sembuf my_op ;
     */
    my_op . sem_op = 1; /* releasing the resource */
    semop ( id , & my_op , 1) ; /* may un - block others */
+
+
+   Lista di opperazioni del semaforo, n=sem_op:
+    n>0, incrementa il valore del semaforo di n;
+    n<0, decrementa il valore del semaforo di n;
+    n=0, si legge il valore del semaforo.

@@ -12,7 +12,7 @@
 //metodo per inizializzare il semaforo normale
 void setSemaforo();
 //metodo per inizializzare la memoria condivisa
-void setMemoriaCondivisa();
+int setMemoriaCondivisa();
 //metodo per stampare le statistiche
 void getStatistiche();
 //metodo per creare i processi atomo
