@@ -12,12 +12,12 @@ void main()
     /**
      * Inizializzazione della memoria condivisa
     */
-    int id=setMemoriaCondivisa();
-    printf("id della memoria condivisa: %d\n",id);
+    int idMemoriaCondivisa=setMemoriaCondivisa(N_ATOMI_INIT);
+    printf("id della memoria condivisa: %d\n",idMemoriaCondivisa);
 
     /**
      * Creazione processi atomi
     */
-   creaAtomi(N_ATOMI_INIT,N_ATOMO_MAX);
+   creaAtomi(N_ATOMI_INIT,N_ATOMO_MAX,idMemoriaCondivisa);
    
 }

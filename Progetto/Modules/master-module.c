@@ -13,7 +13,13 @@
 #include "../Headers/master.h"
 #define KEY_SEMAFORO 1234
 #define KEY_MEMORIA_CONDIVISA 1111
+struct memCond
+    {
+        int *vPid;  // vettore dei pid degli atomi
+        int nAtomi; // grandezza del vettore
+        int eTot;   // energia totale sprigionata
 
+    } dummy; // è solo per la creazione della memoria condivisa
 void setSemaforo()
 {
     int id = semget(KEY_SEMAFORO, 3, IPC_CREAT);
@@ -27,26 +33,32 @@ void setSemaforo()
     semctl(id, 2, SETVAL, 1);
 }
 
-int setMemoriaCondivisa() // id = 32819
+int setMemoriaCondivisa(int nKids) // id = 32819
 {
-    struct memCond
-    {
-        int *vPid;  // vettore dei pid degli atomi
-        int nAtomi; // grandezza del vettore
-        int eTot;   // energia totale sprigionata
-
-    } dummy; // è solo per la creazione della memoria condivisa
+    
     int id = shmget(KEY_MEMORIA_CONDIVISA, sizeof(dummy), IPC_CREAT | 0666);
     if (id == -1)
     {
         perror("Errore nella creazione della memoria condivisa: ");
         exit(EXIT_FAILURE);
     }
-    //printf("CHECKPOINT: MEMORIA CONDIVISA CREATA CON SUCCESSO!\n");
+    /**
+     * Appena creata la memoria condivisa, nessun processo è in fase di scrittura quindi si potrebbe tranquillamente
+     * entrare all'interno della risorsa senza concorrenza
+    */
+    struct memCond * datap ; /* shared data struct */
+    datap = shmat ( id, NULL , 0) ;
+    datap->vPid = malloc(sizeof(int)*nKids);
+    datap->nAtomi = nKids;
+    int status = shmdt (datap);
+    if(status == -1){
+        perror("Error: ");
+    }
+    printf("CHECKPOINT: MEMORIA CONDIVISA CREATA CON SUCCESSO!\n");
     return id;
 }
 
-void creaAtomi(int nAtomi, int nAtomoMax)
+void creaAtomi(int nAtomi, int nAtomoMax, int idMemoriaCondivisa)
 {
     for (int i = 0; i < nAtomi; i++)
     {
@@ -58,14 +70,52 @@ void creaAtomi(int nAtomi, int nAtomoMax)
             int numeroAtomico = rand()%nAtomoMax;
             char stringa[100];
             sprintf(stringa, "%d", numeroAtomico);
-            printf("Valore atomico: %s",stringa);
             char  * const array[2] = {stringa,0};
             execv("Atomo",array);
             perror("");
             exit(1);
+        }else{
+            /**
+             * Porzione di codice che consiste nel aggiungere il pid degli atomi in memoria condivisa
+            */
+           insertAtomi(i,pid,idMemoriaCondivisa);
         }
         
     }
-    printf("CHECKPOINT: la creazione degli atomi è andata a buon fine!\n");
+    //printf("CHECKPOINT: la creazione degli atomi è andata a buon fine!\n");
+    /**
+     * Fino a qui, il codice funziona correttamente
+    */
+
     
+}
+void insertAtomi(int indice, int pid, int idMemoriaCondivisa){
+    struct sembuf my_op ;
+    my_op . sem_num = 0; /* only one semaphore in array of semaphores */
+    my_op . sem_flg = 0; /* no flag : default behavior */
+    my_op . sem_op = -1; /* accessing the resource */
+    semop ( 1234 , & my_op , 1) ; /* blocking if others hold resource */
+    printf("CHECKPOINT: Accesso alla memoria condivisa!\n");
+    //printf("ID dell'array di semafori: %d, valore semaforo %d\n",id, semctl(id, 0, GETVAL));
+    struct memCond * datap ; /* shared data struct */
+    datap = shmat ( idMemoriaCondivisa, NULL , 0) ;
+    if (datap == (struct memCond *)(-1)) {
+        perror("shmat");
+        exit(EXIT_FAILURE);
+    }
+    datap->vPid[0] = pid;
+    printf("Numero atomi: %d\n",datap->nAtomi);
+    /**
+     * 
+     * 
+     * 
+     * SEZIONE CRITICA
+     * 
+     * 
+     * 
+     * 
+    */
+   my_op . sem_op = 1; /* releasing the resource */
+   semop ( 1234 , & my_op , 1) ; /* may un - block others */
+   printf("CHECKPOINT: Rilascio memoria condivisa\n\n");
 }
