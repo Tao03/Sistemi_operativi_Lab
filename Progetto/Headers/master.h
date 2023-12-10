@@ -16,6 +16,6 @@ int setMemoriaCondivisa();
 //metodo per stampare le statistiche
 void getStatistiche();
 //metodo per creare i processi atomo
-void creaAtomi(int nKids);
+void creaAtomi(int nKids, int nAtomoMax);
 //metodo per prelevare energia
 void prelevaEnergia();
