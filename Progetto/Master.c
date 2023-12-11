@@ -1,7 +1,6 @@
 #include "Headers/master.h"
 #include <stdio.h>
-#define N_ATOMI_INIT  2
-#define N_ATOMO_MAX 100
+#include "../Headers/risorse.h"
 void main()
 {
     /**

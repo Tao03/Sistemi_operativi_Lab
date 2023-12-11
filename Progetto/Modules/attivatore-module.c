@@ -2,6 +2,7 @@
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/types.h>
+#include "../Headers/risorse.h"
 void scegliAtomoVittima()
 {
     key_t key= 1234; //chiave del semaforo

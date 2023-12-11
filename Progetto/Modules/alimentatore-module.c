@@ -3,13 +3,7 @@
 #include <sys/sem.h>
 #include <sys/shm.h>
 #include <stdlib.h>
-struct memCond
-    {
-        int *vPid;  // vettore dei pid degli atomi
-        int nAtomi; // grandezza del vettore --> E' dinamico, verrà modificato ogni volta che l'alimentatore produce processi
-        int eTot;   // energia totale sprigionata
-
-    } dummy; // è solo per la creazione della memoria condivisa
+#include "../Headers/risorse.h"
 void creaAtomi(int nAtomi){
     
     /**

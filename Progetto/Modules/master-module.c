@@ -11,15 +11,8 @@
 #include <sys/sem.h>
 #include <sys/shm.h>
 #include "../Headers/master.h"
-#define KEY_SEMAFORO 1234
-#define KEY_MEMORIA_CONDIVISA 1111
-struct memCond
-    {
-        int *vPid;  // vettore dei pid degli atomi
-        int nAtomi; // grandezza del vettore
-        int eTot;   // energia totale sprigionata
+#include "../Headers/risorse.h"
 
-    } dummy; // è solo per la creazione della memoria condivisa
 void setSemaforo()
 {
     int id = semget(KEY_SEMAFORO, 3, IPC_CREAT);
