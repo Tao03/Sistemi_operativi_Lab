@@ -119,3 +119,4 @@ void insertAtomi(int indice, int pid, int idMemoriaCondivisa){
    semop ( 1234 , & my_op , 1) ; /* may un - block others */
    printf("CHECKPOINT: Rilascio memoria condivisa\n\n");
 }
+
