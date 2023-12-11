@@ -28,7 +28,7 @@ void setSemaforo()
         perror("Errore nella creazione del semaforo: ");
         exit(EXIT_FAILURE);
     }
-    semctl(id, 0, SETVAL, 1);
+    semctl(id, 0, SETVAL, -1);
     semctl(id, 1, SETVAL, 1);
     semctl(id, 2, SETVAL, 1);
 }
