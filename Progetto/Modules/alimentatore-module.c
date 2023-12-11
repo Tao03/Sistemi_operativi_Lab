@@ -1,6 +1,69 @@
 #include "alimentatore.h"
 #include <stdio.h>
+#include <sys/sem.h>
+#include <sys/shm.h>
+#include <stdlib.h>
+struct memCond
+    {
+        int *vPid;  // vettore dei pid degli atomi
+        int nAtomi; // grandezza del vettore --> E' dinamico, verrà modificato ogni volta che l'alimentatore produce processi
+        int eTot;   // energia totale sprigionata
+
+    } dummy; // è solo per la creazione della memoria condivisa
 void creaAtomi(int nAtomi){
-    printf("Numero atomi: %d",nAtomi);
     
+    /**
+     * Dobbiamo innanzitutto allargare la dimensione del vettorei dei pid processi atomo
+    */
+   
+
+    for(int i=0;i<nAtomi;i++){
+        int pid = fork();
+        if(pid == 0){
+            /**
+             * Cambio immagine processo
+            */
+            printf("CHECKPOINT: processo atomo creato con pid: %d\n",getpid());
+            srand(getpid());
+            /**
+             * PROBLEMA: siccome non abbiamo la macro del numero atomico, per ora utilizzeremo una costante
+            */
+            int numeroAtomico = rand()%100;
+            char stringa[100];
+            sprintf(stringa, "%d", numeroAtomico);
+            char  * const array[2] = {stringa,0};
+            execv("Atomo",array);
+            perror("");
+            exit(1);
+        }else{
+            //vettore[i] = pid;
+        }
+    }
+    
+}
+/**
+     * Modifica il numero dei processi atomi in esecuzione
+*/
+void modificaDimensione(){
+    
+    struct sembuf my_op ;
+    my_op . sem_num = 0; /* only one semaphore in array of semaphores */
+    my_op . sem_flg = 0; /* no flag : default behavior */
+    my_op . sem_op = -1; /* accessing the resource */
+    semop ( 1234 , & my_op , 1) ; /* blocking if others hold resource */
+    printf("CHECKPOINT: Accesso alla memoria condivisa!\n");
+    struct memCond * datap ; /* shared data struct */
+    int idMemoriaCondivisa = shmget(1111,sizeof(datap),0);
+    datap = shmat ( idMemoriaCondivisa, NULL , 0) ;
+
+    if (datap == (struct memCond *)(-1)) {
+        perror("shmat");
+        exit(EXIT_FAILURE);
+    }
+
+    datap->nAtomi = datap->nAtomi + 1;
+    realloc( datap->vPid,sizeof(int)*datap->nAtomi);
+    printf("Numero atomi nuovo è: : %d\n",datap->nAtomi);
+    my_op . sem_op = 1; /* releasing the resource */
+    semop ( 1234 , & my_op , 1) ; /* may un - block others */
 }
