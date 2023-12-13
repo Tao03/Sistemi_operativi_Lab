@@ -6,7 +6,6 @@
 
 
 #define clock 60
-
 void handle_signal(int signal)
 {
     //controllo che il semaforo prioritario sia libero
