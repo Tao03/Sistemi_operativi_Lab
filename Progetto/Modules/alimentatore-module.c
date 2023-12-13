@@ -1,15 +1,23 @@
-#include "alimentatore.h"
+#define _GNU_SOURCE 
+#include "../Headers/alimentatore.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+#include <time.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
-#include <stdlib.h>
 #include "../Headers/risorse.h"
+
 void creaAtomi(int nAtomi){
     
     /**
      * Dobbiamo innanzitutto allargare la dimensione del vettorei dei pid processi atomo
     */
-   
 
     for(int i=0;i<nAtomi;i++){
         int pid = fork();
@@ -30,7 +38,8 @@ void creaAtomi(int nAtomi){
             perror("");
             exit(1);
         }else{
-            //vettore[i] = pid;
+            printf("CASSA\n");
+            aggiungiProcessoAtomo(pid);
         }
     }
     
@@ -38,7 +47,7 @@ void creaAtomi(int nAtomi){
 /**
      * Modifica il numero dei processi atomi in esecuzione
 */
-void modificaDimensione(){
+void aggiungiProcessoAtomo(int pid){
     
     struct sembuf my_op ;
     my_op . sem_num = 0; /* only one semaphore in array of semaphores */
@@ -56,8 +65,15 @@ void modificaDimensione(){
     }
 
     datap->nAtomi = datap->nAtomi + 1;
+     /**
+     * Ri-allocamento del vettore con dimensione n + 1 dove n è la dimensione prima dell'esecuzione del metodo
+    */
     realloc( datap->vPid,sizeof(int)*datap->nAtomi);
     printf("Numero atomi nuovo è: : %d\n",datap->nAtomi);
+    /**
+     * Aggiunta del pid nel vettore
+    */
+    datap->vPid[datap->nAtomi-1]=pid;
     my_op . sem_op = 1; /* releasing the resource */
     semop ( 1234 , & my_op , 1) ; /* may un - block others */
 }

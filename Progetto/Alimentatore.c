@@ -7,19 +7,9 @@
 
 //int sigaction ( int signum , const struct sigaction * act , struct sigaction * oldact );
 int nKids;
-void handle_signal(int signum){
-    printf("CHECKPOINT: segnale arrivato");
-    for(int i = 0;i<nKids;i++){
-        int pid = fork();
-        printf("CHECKPOINT: processo con pid %d è stato appena generato",getpid());
-        if(pid==0){
-            /**
-             * In questa parte del codice ci sarà l'aggiunta dei processi atomo in memoria condivisa
-            */
-          // execv("atomo.c","ciao");
-        }
-    }
-}
+void creaAtomi(int nkids);
+int flag=0;
+
 
 int main(int argc, char* argv[])
 {
@@ -31,5 +21,17 @@ int main(int argc, char* argv[])
     new.sa_handler = handle_signal; /* set the handler */
     sigaction(SIGALRM, &new, NULL);  /* CASE 1: set new handler */
     printf("Alarm\n");
-    alarm(TIMER);
+    while(1) //va sostituito con l'attesa di terminazione dal master
+    {
+        alarm(TIMER);
+        while(flag==0){}
+        creaAtomi(nKids);
+        flag = 0;
+    }
+    
+}
+void handle_signal(int signum){
+   /// printf("CHECKPOINT: segnale arrivato\n");
+    //printf("CHECKPOINT: HANDLE FINITO\n");
+    flag = 1;
 }
