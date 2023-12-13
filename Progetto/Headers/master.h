@@ -19,3 +19,5 @@ void getStatistiche();
 void creaAtomi(int nKids, int nAtomoMax, int idMemoriaCondivisa);
 //metodo per prelevare energia
 void prelevaEnergia();
+
+void insertAtomi(int indice, int pid, int idMemoriaCondivisa);

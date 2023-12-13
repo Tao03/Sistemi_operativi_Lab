@@ -1,6 +1,6 @@
 #include "Headers/master.h"
 #include <stdio.h>
-#include "../Headers/risorse.h"
+#include "Headers/risorse.h"
 void main()
 {
     /**
