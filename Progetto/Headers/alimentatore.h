@@ -1,5 +1,6 @@
 //metodo per generare figli(processi atomo)
 void creaAtomi(int nAtomi);
+void aggiungiProcessoAtomo(int pid);
 /**
      * Crea atomi e li aggiunge all'interno della memoria condivisa
      * Metodi da usare:

@@ -1,11 +1,20 @@
-Master:  Master.o Modules/master-module.o
-	gcc Master.o Modules/master-module.o -o Master
-
-master-module.o: Modules/master-module.c
+all: Master Attivatore Atomo Alimentatore
+Master: Master.c Modules/master-module.c
 	gcc -c Modules/master-module.c
+	gcc Master.c master-module.o -o Master
+Attivatore: Attivatore.c Modules/attivatore-module.c
+	gcc -c Modules/attivatore-module.c
+	gcc Attivatore.c attivatore-module.o -o Attivatore
 
-Master.o: Master.c
-	gcc -c Master.c
+Atomo: Atomo.c Modules/atomo-module.c
+	gcc -c Modules/atomo-module.c
+	gcc Atomo.c atomo-module.o -o Atomo
 
+Alimentatore: Alimentatore.c Modules/alimentatore-module.c
+	gcc -c Modules/alimentatore-module.c
+	gcc Alimentatore.c alimentatore-module.o -o Alimentatore
+
+clean:
+	rm -f *.o Master Attivatore Atomo Alimentatore
 #gcc -c Modules/master-module.c
 #gcc Master.c Modules/master-module.o -o Master
