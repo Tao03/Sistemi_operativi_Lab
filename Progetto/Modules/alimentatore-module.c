@@ -12,13 +12,12 @@
 #include <sys/shm.h>
 #include "../Headers/alimentatore.h"
 #include "../Headers/risorse.h"
-
+int id=0;
 void creaAtomi(int nAtomi){
     
     /**
      * Dobbiamo innanzitutto allargare la dimensione del vettorei dei pid processi atomo
     */
-   printf("creaAtomi è stato invocato\n");
     for(int i=0;i<2;i++){
         int pid = fork();
         if(pid == 0){
@@ -59,18 +58,18 @@ void aggiungiProcessoAtomo(int pid){
     int idMemoriaCondivisa = shmget(1111,sizeof(datap),0);
     datap = (struct memCond *) shmat ( idMemoriaCondivisa, NULL , 0) ;
 
-    if (datap->vPid == (int *)(-1)) {
+  /*  if (datap->vPid == (int *)(-1)) {
         perror("shmat");
         exit(EXIT_FAILURE);
-    }
+    }*/
     
     
-    datap->nAtomi = datap->nAtomi + 1;
+    //datap->nAtomi = datap->nAtomi + 1;
     printf("CHECKPOINT: il numero di atomi è stato incrementato a %d\n",datap->nAtomi);
      /**
      * Ri-allocamento del vettore con dimensione n + 1 dove n è la dimensione prima dell'esecuzione del metodo
     */
-   int* array = datap->vPid;
+   /*int* array = datap->vPid;
    if(array == NULL){
         printf("Errore in memoria condivisa\n");
         exit(EXIT_FAILURE);
@@ -82,18 +81,18 @@ void aggiungiProcessoAtomo(int pid){
     array =  (int*) realloc( (void *)array,sizeof(int)*(10));
     */
 
-    printf("Prima di realloc, array: %p\n", (void *)array);
+    /*printf("Prima di realloc, array: %p\n", (void *)array);
     if ((void *)array == NULL) {
         printf("Errore di riallocazione di memoria\n");
         exit(EXIT_FAILURE);
     }
-    printf("CHECKPOINT: Numero atomi nuovo è: : %d\n",datap->nAtomi);
+    printf("CHECKPOINT: Numero atomi nuovo è: : %d\n",datap->nAtomi);*/
     /**
      * Aggiunta del pid nel vettore
     */
    /**
     * DA QUELLO CHE HO CAPITO, facendo array[0] = pid mi da errore MA FORSE anche realloc()
-   */
+   
     //array[0] = pid;
     datap->vPid[0]= pid;
 
@@ -101,10 +100,15 @@ void aggiungiProcessoAtomo(int pid){
     if (shmdt(datap) == -1) {
         perror("shmdt");
         exit(EXIT_FAILURE);
-    }
+    } */
+
+    add_int_to_shared_array(datap,pid);
+
+    shmdt(datap);
     my_op . sem_op = 1; /* releasing the resource */
     semop ( 1234 , & my_op , 1) ; /* may un - block others */
     printf("CHECKPOINT: Scollegamento dalla memoria!\n");
+
 }
 /**
  * E' Presente un problema: 
@@ -112,3 +116,63 @@ void aggiungiProcessoAtomo(int pid){
  *      ma il vettore effettivo è all'interno dell'area privata del processo master e quindi l'alimentatore avendo il 
  *      puntatore all'array non riesce ad accedere.
 */
+
+void add_int_to_shared_array(struct memCond* shared_struct, int pid) {
+   // key_t key = ftok("Modules", 1);
+    // Calcola la dimensione del nuovo vettore
+    //int new_size = (shared_struct->nAtomi + 1) * sizeof(int);
+
+    // Crea un nuovo segmento di memoria condivisa per il vettore
+
+    int new_shm_id = shmget(1222, shared_struct->nAtomi, 0666);
+    shared_struct->id_vettore_condiviso = new_shm_id;
+
+
+
+    if (new_shm_id == -1) {
+        printf("Errore nella creazione della nuova memoria condivisa ");
+        perror("Error: \n");
+        exit(EXIT_FAILURE);
+    }
+
+
+
+    shared_struct->nAtomi = shared_struct->nAtomi + 1;
+
+
+
+    // Collega il nuovo segmento di memoria condivisa al tuo spazio di indirizzi
+    //Recupera array condiviso:
+    int* new_array = (int*) shmat(new_shm_id, NULL, 0);
+    int* temp_array = malloc(sizeof(int)*(shared_struct->nAtomi));
+
+    if (new_array == NULL) {
+        printf("Errore nel collegamento della nuova memoria condivisa \n");
+        
+        exit(EXIT_FAILURE);
+    }
+    /*if (shmdt(shared_struct->vPid) == -1) {
+        perror("Errore nello staccare il segmento di memoria condivisa");
+        // Puoi gestire l'errore in modo appropriato
+    }*/
+    // Copia i dati dal vecchio vettore al nuovo
+    memcpy(new_array, temp_array, (shared_struct->nAtomi) * sizeof(int));
+
+    // Aggiungi il nuovo intero al vettore
+    new_array[shared_struct->nAtomi-1] = pid;
+    printf("Pid dell'ultimo processo: %d\n",new_array[shared_struct->nAtomi-1]);
+    
+    
+    
+
+    // Scollega e rilascia il vecchio segmento di memoria condivisa per il vettore
+    //shmdt(new_array);
+    // Aggiorna la struct in memoria condivisa per usare il nuovo vettore
+    //shared_struct->vPid = new_array;
+
+    
+    /*shmdt(new_array);
+    shmctl ( new_shm_id , 0 , NULL ) ;*/
+    shmdt ( new_array );
+    
+}

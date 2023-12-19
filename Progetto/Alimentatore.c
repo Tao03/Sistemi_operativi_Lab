@@ -10,7 +10,7 @@
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
-#define TIMER 2
+#define TIMER 1
 # include "Headers/alimentatore.h"
 # include <signal.h>
 # include <string.h>
@@ -35,16 +35,13 @@ int main(int argc, char* argv[])
     memset(&new,0,sizeof(new));     /* set all bytes to zero */
     new.sa_handler = handle_signal; /* set the handler */
     sigaction(SIGALRM, &new, NULL);  /* CASE 1: set new handler */
-    printf("Alarm\n");
     while(1) //va sostituito con l'attesa di terminazione dal master
     {
 
 
         alarm(TIMER);
         pause();
-        printf("ciao\n");
         creaAtomi(nKids);
-        flag = 0;
 
         
     }
@@ -53,5 +50,4 @@ int main(int argc, char* argv[])
 void handle_signal(int signum){
     //printf("CHECKPOINT: segnale arrivato\n");
     //printf("CHECKPOINT: HANDLE FINITO\n");
-    flag = 1;
 }

@@ -6,7 +6,7 @@
 #define STRUCT
 extern struct memCond
     {
-        int *vPid;  // vettore dei pid degli atomi
+        int id_vettore_condiviso;  // vettore dei pid degli atomi
         int nAtomi; // grandezza del vettore
         int eTot;   // energia totale sprigionata
 

@@ -30,7 +30,12 @@ int setMemoriaCondivisa(int nKids) // id = 32819
 {
     
     int id = shmget(KEY_MEMORIA_CONDIVISA, sizeof(dummy), IPC_CREAT | 0666);
-    if (id == -1)
+    /**
+     * Si crea un array di interi condiviso
+    */
+    int id_array_condiviso = shmget(1222, sizeof(int) * nKids, IPC_CREAT | 0666);
+
+    if (id == -1  || id_array_condiviso == -1)
     {
         perror("Errore nella creazione della memoria condivisa: ");
         exit(EXIT_FAILURE);
@@ -40,9 +45,16 @@ int setMemoriaCondivisa(int nKids) // id = 32819
      * entrare all'interno della risorsa senza concorrenza
     */
     struct memCond * datap ; /* shared data struct */
+    int* new_array = (int*) shmat(id_array_condiviso, NULL, 0);
+
     datap = shmat ( id, NULL , 0) ;
-    datap->vPid = malloc(sizeof(int)*nKids);
+
+    //datap->vPid = new_array;
+    int new_shm_id = shmget(1222, datap->nAtomi, IPC_CREAT | 0666);
     datap->nAtomi = nKids;
+    //memcpy(new_array, datap->vPid, datap->nAtomi * sizeof(int));
+    //int new_shm_id = shmget(1222, datap->nAtomi, IPC_CREAT | 0666);
+    datap->id_vettore_condiviso = new_shm_id;
     int status = shmdt (datap);
     if(status == -1){
         perror("Error: ");
@@ -96,7 +108,10 @@ void insertAtomi(int indice, int pid, int idMemoriaCondivisa){
         perror("shmat");
         exit(EXIT_FAILURE);
     }
-    datap->vPid[0] = pid;
+    //datap->vPid[0] = pid;
+    /**
+     * QUI SI DEVE INSERIRE LA PARTE DI CODICE CHE INSERISCE I PROCESSI
+    */
     printf("Numero atomi: %d\n",datap->nAtomi);
     /**
      * 
