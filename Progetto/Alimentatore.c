@@ -35,6 +35,18 @@ int main(int argc, char* argv[])
     memset(&new,0,sizeof(new));     /* set all bytes to zero */
     new.sa_handler = handle_signal; /* set the handler */
     sigaction(SIGALRM, &new, NULL);  /* CASE 1: set new handler */
+
+    struct sembuf my_op ;
+    my_op . sem_num = 2; /* only one semaphore in array of semaphores */
+    my_op . sem_flg = 0; /* no flag : default behavior */
+    my_op . sem_op = -1; /* accessing the resource */
+     int idSemaforo = semget(KEY_SEMAFORO, 3, IPC_CREAT | 0666);
+    if(semop ( idSemaforo , & my_op , 1) == -1){
+        perror("Errore sul semaforo: ");
+    } /* blocking if others hold resource */
+    printf("Il master mi ha dato il via!");
+
+
     while(1) //va sostituito con l'attesa di terminazione dal master
     {
 

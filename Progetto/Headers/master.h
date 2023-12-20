@@ -10,7 +10,7 @@
 #include <sys/ipc.h>
 #include <sys/sem.h>
 //metodo per inizializzare il semaforo normale
-void setSemaforo();
+int setSemaforo();
 //metodo per inizializzare la memoria condivisa
 int setMemoriaCondivisa(int nKids);
 //metodo per stampare le statistiche

@@ -13,17 +13,18 @@
 #include "../Headers/master.h"
 #include "../Headers/risorse.h"
 
-void setSemaforo()
+int setSemaforo()
 {
-    int id = semget(KEY_SEMAFORO, 3, IPC_CREAT);
+    int id = semget(KEY_SEMAFORO, 3, IPC_CREAT | 0666);
     if (id == -1)
     {
         perror("Errore nella creazione del semaforo: ");
         exit(EXIT_FAILURE);
     }
-    semctl(id, 0, SETVAL, -1);
+    semctl(id, 0, SETVAL, 1);
     semctl(id, 1, SETVAL, 1);
     semctl(id, 2, SETVAL, 1);
+    return id;
 }
 
 int setMemoriaCondivisa(int nKids) // id = 32819
@@ -33,7 +34,12 @@ int setMemoriaCondivisa(int nKids) // id = 32819
     /**
      * Si crea un array di interi condiviso
     */
-    int id_array_condiviso = shmget(1222, sizeof(int) * nKids, IPC_CREAT | 0666);
+
+   /**
+    * Una cosa da notare è che quando l'alimentatore aumenta la dimensione dell'array condiviso, riavviando il master porta 
+    * ad un errore perchè il master prenderà la memoria condivisa ma con una dimensione vecchia e non quella recente siccome non è aggiornata
+   */
+    int id_array_condiviso = shmget(1221, sizeof(int) * nKids, IPC_CREAT | 0666);
 
     if (id == -1  || id_array_condiviso == -1)
     {
@@ -50,11 +56,11 @@ int setMemoriaCondivisa(int nKids) // id = 32819
     datap = shmat ( id, NULL , 0) ;
 
     //datap->vPid = new_array;
-    int new_shm_id = shmget(1222, datap->nAtomi, IPC_CREAT | 0666);
+    //int new_shm_id = shmget(1222, datap->nAtomi, IPC_CREAT | 0666);
     datap->nAtomi = nKids;
     //memcpy(new_array, datap->vPid, datap->nAtomi * sizeof(int));
     //int new_shm_id = shmget(1222, datap->nAtomi, IPC_CREAT | 0666);
-    datap->id_vettore_condiviso = new_shm_id;
+    datap->id_vettore_condiviso = id_array_condiviso;
     int status = shmdt (datap);
     if(status == -1){
         perror("Error: ");
@@ -70,6 +76,7 @@ void creaAtomi(int nAtomi, int nAtomoMax, int idMemoriaCondivisa)
         int pid = fork();
         if (pid == 0)
         {
+
             printf("CHECKPOINT: processo atomo creato con pid: %d\n",getpid());
             srand(getpid());
             int numeroAtomico = rand()%nAtomoMax;
@@ -79,6 +86,7 @@ void creaAtomi(int nAtomi, int nAtomoMax, int idMemoriaCondivisa)
             execv("Atomo",array);
             perror("");
             exit(1);
+
         }else{
             /**
              * Porzione di codice che consiste nel aggiungere il pid degli atomi in memoria condivisa
