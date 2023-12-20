@@ -10,8 +10,7 @@
 #include "../Headers/attivatore.h"
 void scegliAtomoVittima()
 {
-    key_t key= 1234; //chiave del semaforo
-    int id=semget(key, 1, 0666); //ottengo id del semaforo
+    int id=semget(KEY_SEMAFORO, 1, 0666); //ottengo id del semaforo
     struct sembuf my_op ;
     my_op . sem_num = 0;//scelgo il semaforo di sincronizzazione
     my_op . sem_flg = 0;
