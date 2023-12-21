@@ -26,11 +26,13 @@ int main(int argc, char* argv[]){
     {
         fprintf(stderr, "Errore inizializzazione handler Atomo\n");
     }
-    while (1) //da sostituire col segnale di terminazione
+    for(int i=0;i<1;i++)//while (1) //da sostituire col segnale di terminazione
     {
         //l'atomo non fa nulla se non viene effettuata la scissione
-        while(flag==0)
-        {}
+        /* commentato per ora, test in corso
+        *while(flag==0)
+        *{}
+        */
         printf("Sono l'atomo e sono riuscito a ricevere il segnale\n");
         if(nAtomico>N_ATOMICO_MIN)
         {

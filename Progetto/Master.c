@@ -7,12 +7,12 @@ void main()
      * Inizializzazione dei 3 semafori
     */
     setSemaforo();
-    printf("Ciao!\n");
+    printf("Semafori settati\n");
     /**
      * Inizializzazione della memoria condivisa
     */
     int idMemoriaCondivisa=setMemoriaCondivisa(N_ATOMI_INIT);
-    printf("id della memoria condivisa: %d\n",idMemoriaCondivisa);
+    printf("Memoria condivisa creata, id memoria: %d\n",idMemoriaCondivisa);
 
     /**
      * Creazione processi atomi

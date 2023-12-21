@@ -15,15 +15,32 @@
 
 void setSemaforo()
 {
-    int id = semget(KEY_SEMAFORO, 3, IPC_CREAT);
+    int id = semget(KEY_SEMAFORO, 3, 0); // Prova a ottenere l'ID del semaforo esistente
+
+    if (id != -1) // Se l'ID non è -1, il semaforo esiste
+    {
+        // Rimuovi il semaforo esistente
+        printf("Semaforo esistente trovato, rimozione...\n");
+        if (semctl(id, 0, IPC_RMID) == -1)
+        {
+            perror("Errore nella rimozione del semaforo: ");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    // Crea un nuovo semaforo
+    id = semget(KEY_SEMAFORO, 3, IPC_CREAT | IPC_EXCL | 0666);
     if (id == -1)
     {
         perror("Errore nella creazione del semaforo: ");
         exit(EXIT_FAILURE);
     }
-    semctl(id, 0, SETVAL, -1);
+
+    // Imposta i valori iniziali dei semafori
+    semctl(id, 0, SETVAL, 1);/*-1 impostato a 1 solo per test*/
     semctl(id, 1, SETVAL, 1);
     semctl(id, 2, SETVAL, 1);
+    //printf("Valore semaforo sincronizzazione: %d\n",semctl(id, 0, GETVAL, 0)); funziona
 }
 
 int setMemoriaCondivisa(int nKids) // id = 32819

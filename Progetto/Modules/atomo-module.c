@@ -17,33 +17,36 @@ void scissione(int nAtomico, int argc, char* argv[]){
     int id=semget(KEY_SEMAFORO, 1, 0666); //ottengo id del semaforo
     struct sembuf my_op ;
     int flag=0;
+    //printf("Valore semaforo sincronizzazione: %d\n",semctl(id, 0, GETVAL, 0));
     do
     {
-        my_op . sem_num = 0;//scelgo il semaforo di sincronizzazione
-        my_op . sem_flg = 0;
-        my_op . sem_op = 0;//leggo il semaforo
-        semop ( id , & my_op , 1) ;//eseguo le operazioni
+        //printf("Sono l'atomo e ho letto il semaforo\n");
         if(semctl(id, 0, GETVAL, 0)==1)//se siamo sincronizzati
         {
-            
+            //printf("Atomo sincronizzato\n");
             int nAtomicoFiglio = rand()%N_ATOMICO_MAX;//numero atomico del figlio
             nAtomico-=nAtomicoFiglio;//aggiorno il numero atomico del padre
             
             int pid=fork();
             if(pid == 0) //è il figlio
             {
-                argv[1]=nAtomicoFiglio;
+                char str[10];
+                sprintf(str,"%d",nAtomicoFiglio);
+                argv[1]=str;
+                printf("Sono il figlio ed eseguo atomo");
                 execve("Atomo",argv,NULL); //<- esegue il figlio con il nuovo numero atomico
+                exit(0);
             }
             else //è il padre
             {
+                printf("Sono il padre, controllo i semafori\n");
                 int flag2=0;
                 do
                 {
                     
                         if(semctl(id, 1, GETVAL) && semctl(id, 2, GETVAL))//se il sem. prioritario e quello per gli atomi sono liberi
                         {
-
+                            printf("Sono il padre e ho ottenuto i semafori\n");
                             my_op . sem_num = 1;//scelgo il semaforo prioritario
                             my_op . sem_flg = 0;
                             my_op . sem_op = -1;//occupo il semaforo
@@ -61,8 +64,8 @@ void scissione(int nAtomico, int argc, char* argv[]){
                                 int energiaLiberata = nAtomicoFiglio*nAtomico-max(nAtomicoFiglio,nAtomico);
 
                                 //aggiung il pid del figlio nel vettore dei pid e aggiorno l'energia
-                                //aggiungiAtomo(pid, energiaLiberata);
-                                printf("Atomo aggiunto con pid: %d\n",pid);
+                                //da togliere il commento->aggiungiAtomo(pid, energiaLiberata);
+                                printf("Atomo aggiunto con pid e nAtomico: %d, %d\n",pid, nAtomicoFiglio);
                             
                             //sezione critica fine
 
