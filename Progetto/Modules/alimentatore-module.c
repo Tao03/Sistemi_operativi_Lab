@@ -151,16 +151,17 @@ void add_int_to_shared_array(struct memCond* shared_struct, int pid) {
 
     
     printf("NUMERO ATOMI: %d\n",shared_struct->nAtomi);
-    int old_shm_id = shmget(KEY_ARRAY_CONDIVISO,(sizeof(int) * shared_struct->nAtomi), IPC_CREAT | 0666);
+    printf("Numero di bytes: %d\n",shared_struct->nAtomi * sizeof(int));
+    /*int old_shm_id = shmget(KEY_ARRAY_CONDIVISO,(sizeof(int) * shared_struct->nAtomi), IPC_CREAT | 0666);
 
-
+     
 
     if (old_shm_id == -1) {
         //printf("Errore nella creazione della nuova memoria condivisa ");
         perror("Error: \n");
         exit(EXIT_FAILURE);
-    }
-    
+    }*/
+    int old_shm_id = shared_struct->id_vettore_condiviso;
 
 
 

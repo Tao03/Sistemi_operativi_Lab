@@ -89,7 +89,7 @@ void stampa(){
 
 
 
-    int idArrayCondiviso = shmget(KEY_ARRAY_CONDIVISO, sizeof(int)*datap->nAtomi, IPC_CREAT | 0666);
+    /*int idArrayCondiviso = shmget(KEY_ARRAY_CONDIVISO, sizeof(int)*datap->nAtomi, IPC_CREAT | 0666);
 
 
 
@@ -98,10 +98,10 @@ void stampa(){
         perror("Processo master in stampa shmget array condiviso");
         printf("Numero atomi %d\n",datap->nAtomi);
         exit(EXIT_FAILURE);
-    }
+    }*/
 
    // int id_array_condiviso = shmget(KEY_ARRAY_CONDIVISO,10,IPC_CREAT | 0666);
-    int *array = shmat(idArrayCondiviso, NULL, 0);
+    int *array = shmat(datap->id_vettore_condiviso, NULL, 0);
 
     if (array == (int *)-1) {
         perror("Processo master in stampa shmat");
