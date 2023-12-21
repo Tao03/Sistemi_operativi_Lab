@@ -36,9 +36,9 @@ void scegliAtomoVittima()
                 int id=shmget(KEY_MEMORIA_CONDIVISA, sizeof(p), 0666); //ottengo id della memoria condivisa
                 p=shmat(id, NULL, SHM_RDONLY); //ottengo il puntatore alla memoria condivisa
                 int nAtomi = p->nAtomi;
-                int *vPid = p->vPid;
-                int pidVittima = vPid[rand()%nAtomi];
-                kill(pidVittima, SIGUSR1);
+               // int *vPid = p->vPid;
+                //int pidVittima = vPid[rand()%nAtomi];
+                //kill(pidVittima, SIGUSR1);
                 //sezione critica fine
 
                 my_op . sem_op = 1;//rilascio il semaforo

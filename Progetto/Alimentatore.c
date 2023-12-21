@@ -10,7 +10,9 @@
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
-#define TIMER 1
+
+#define TIMER 10
+
 # include "Headers/alimentatore.h"
 # include <signal.h>
 # include <string.h>
@@ -40,11 +42,19 @@ int main(int argc, char* argv[])
     my_op . sem_num = 2; /* only one semaphore in array of semaphores */
     my_op . sem_flg = 0; /* no flag : default behavior */
     my_op . sem_op = -1; /* accessing the resource */
-     int idSemaforo = semget(KEY_SEMAFORO, 3, IPC_CREAT | 0666);
+    int idSemaforo = semget(KEY_SEMAFORO, 3, IPC_CREAT | 0666);
+
+
+
     if(semop ( idSemaforo , & my_op , 1) == -1){
         perror("Errore sul semaforo: ");
-    } /* blocking if others hold resource */
-    printf("Il master mi ha dato il via!");
+    } 
+
+
+
+    /* blocking if others hold resource */
+
+   // printf("Il master mi ha dato il via!");
 
 
     while(1) //va sostituito con l'attesa di terminazione dal master

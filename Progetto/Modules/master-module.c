@@ -29,44 +29,62 @@ int setSemaforo()
 
 int setMemoriaCondivisa(int nKids) // id = 32819
 {
-    
-    int id = shmget(KEY_MEMORIA_CONDIVISA, sizeof(dummy), IPC_CREAT | 0666);
+    printf("Dimensione del dummy: %ld\n",sizeof(dummy));
+    int idMemoriaCondivisa = shmget(KEY_MEMORIA_CONDIVISA, sizeof(dummy), IPC_CREAT | 0666);
     /**
      * Si crea un array di interi condiviso
     */
+    if(idMemoriaCondivisa == -1){
+        perror("Errore nella creazione della memoria condivisa: ");
+        exit(EXIT_FAILURE);
+    }
+    struct memCond * datap ; /* shared data struct */
+    datap = shmat(idMemoriaCondivisa, NULL, 0);
 
    /**
     * Una cosa da notare è che quando l'alimentatore aumenta la dimensione dell'array condiviso, riavviando il master porta 
     * ad un errore perchè il master prenderà la memoria condivisa ma con una dimensione vecchia e non quella recente siccome non è aggiornata
    */
-    int id_array_condiviso = shmget(1221, sizeof(int) * nKids, IPC_CREAT | 0666);
-
-    if (id == -1  || id_array_condiviso == -1)
+  datap->nAtomi = nKids;
+    int id_array_condiviso = shmget(KEY_ARRAY_CONDIVISO, sizeof(int)*datap->nAtomi, IPC_CREAT | 0666);
+   
+    if (id_array_condiviso == -1)
     {
-        perror("Errore nella creazione della memoria condivisa: ");
+        perror("Errore nella creazione dell'array condiviso: ");
         exit(EXIT_FAILURE);
     }
     /**
      * Appena creata la memoria condivisa, nessun processo è in fase di scrittura quindi si potrebbe tranquillamente
      * entrare all'interno della risorsa senza concorrenza
     */
-    struct memCond * datap ; /* shared data struct */
+   
     int* new_array = (int*) shmat(id_array_condiviso, NULL, 0);
 
-    datap = shmat ( id, NULL , 0) ;
+    
 
     //datap->vPid = new_array;
     //int new_shm_id = shmget(1222, datap->nAtomi, IPC_CREAT | 0666);
-    datap->nAtomi = nKids;
+        
+    
     //memcpy(new_array, datap->vPid, datap->nAtomi * sizeof(int));
     //int new_shm_id = shmget(1222, datap->nAtomi, IPC_CREAT | 0666);
+
     datap->id_vettore_condiviso = id_array_condiviso;
+
     int status = shmdt (datap);
+
+    int statusArray = shmdt (new_array);
+
     if(status == -1){
-        perror("Error: ");
+        perror("Errore nello scollegamento della memoria condivisa: ");
     }
+
+    if(statusArray == -1){
+        perror("Errore nello scollegamento dell'array condivisa: \n");
+    }
+
     printf("CHECKPOINT: MEMORIA CONDIVISA CREATA CON SUCCESSO!\n");
-    return id;
+    return idMemoriaCondivisa;
 }
 
 void creaAtomi(int nAtomi, int nAtomoMax, int idMemoriaCondivisa)
@@ -77,20 +95,25 @@ void creaAtomi(int nAtomi, int nAtomoMax, int idMemoriaCondivisa)
         if (pid == 0)
         {
 
-            printf("CHECKPOINT: processo atomo creato con pid: %d\n",getpid());
+
+
+            //printf("CHECKPOINT: processo atomo creato con pid: %d\n",getpid());
             srand(getpid());
             int numeroAtomico = rand()%nAtomoMax;
             char stringa[100];
             sprintf(stringa, "%d", numeroAtomico);
             char  * const array[2] = {stringa,0};
-            execv("Atomo",array);
-            perror("");
-            exit(1);
+            //execv("Atomo",array);
+            //perror("");
+            exit(EXIT_SUCCESS);
 
+
+            
         }else{
             /**
              * Porzione di codice che consiste nel aggiungere il pid degli atomi in memoria condivisa
             */
+           //printf("Passo il pid [%d]\n",pid);
            insertAtomi(i,pid,idMemoriaCondivisa);
         }
         
@@ -108,19 +131,39 @@ void insertAtomi(int indice, int pid, int idMemoriaCondivisa){
     my_op . sem_flg = 0; /* no flag : default behavior */
     my_op . sem_op = -1; /* accessing the resource */
     semop ( 1234 , & my_op , 1) ; /* blocking if others hold resource */
-    printf("CHECKPOINT: Accesso alla memoria condivisa!\n");
+    //printf("CHECKPOINT: Accesso alla memoria condivisa!\n");
     //printf("ID dell'array di semafori: %d, valore semaforo %d\n",id, semctl(id, 0, GETVAL));
     struct memCond * datap ; /* shared data struct */
-    datap = shmat ( idMemoriaCondivisa, NULL , 0) ;
+    datap = shmat ( idMemoriaCondivisa, NULL ,0) ;
     if (datap == (struct memCond *)(-1)) {
         perror("shmat");
         exit(EXIT_FAILURE);
     }
-    //datap->vPid[0] = pid;
+    //datap->nAtomi = datap->nAtomi + 1;
+
+    
     /**
      * QUI SI DEVE INSERIRE LA PARTE DI CODICE CHE INSERISCE I PROCESSI
     */
-    printf("Numero atomi: %d\n",datap->nAtomi);
+    int * arrayPid = shmat(datap->id_vettore_condiviso,NULL,0);
+    if(arrayPid == NULL){
+        perror("Error: ");
+        exit(EXIT_FAILURE);
+    }
+
+    arrayPid[indice] = pid;
+
+    //printf("Aggiunto %d\n",arrayPid[indice]);
+    int status = shmdt (arrayPid);
+     
+    if(status == -1){
+        perror("Error: ");
+    }
+    status = shmdt(datap);
+    if(status == -1){
+        perror("Erro: ");
+    }
+    //printf("Numero atomi: %d\n",datap->nAtomi);
     /**
      * 
      * 
@@ -133,6 +176,7 @@ void insertAtomi(int indice, int pid, int idMemoriaCondivisa){
     */
    my_op . sem_op = 1; /* releasing the resource */
    semop ( 1234 , & my_op , 1) ; /* may un - block others */
-   printf("CHECKPOINT: Rilascio memoria condivisa\n\n");
+   
+   //printf("CHECKPOINT: Rilascio memoria condivisa\n\n");
 }
 
