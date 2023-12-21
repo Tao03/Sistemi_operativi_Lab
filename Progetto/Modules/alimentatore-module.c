@@ -52,7 +52,15 @@ void aggiungiProcessoAtomo(int pid){
     my_op . sem_num = 0; /* only one semaphore in array of semaphores */
     my_op . sem_flg = 0; /* no flag : default behavior */
     my_op . sem_op = -1; /* accessing the resource */
-    semop ( 1234 , & my_op , 1) ; /* blocking if others hold resource */
+    int idSemaforo = semget(1234, 3, IPC_CREAT | 0666);
+    if(idSemaforo == -1){
+        perror("Errore sul semaforo: ");
+    }
+    if (semop(idSemaforo, &my_op, 1) == -1) {
+        perror("Semaforo 2 semop");
+        exit(EXIT_FAILURE);
+    }
+
     printf("CHECKPOINT: Accesso alla memoria condivisa!\n");
     struct memCond * datap ; /* shared data struct */
     int idMemoriaCondivisa = shmget(1111,sizeof(datap),0);
@@ -106,7 +114,10 @@ void aggiungiProcessoAtomo(int pid){
 
     shmdt(datap);
     my_op . sem_op = 1; /* releasing the resource */
-    semop ( 1234 , & my_op , 1) ; /* may un - block others */
+    if (semop(idSemaforo, &my_op, 1) == -1) {
+        perror("Semaforo 2 semop");
+        exit(EXIT_FAILURE);
+    }
     printf("CHECKPOINT: Scollegamento dalla memoria!\n");
 
 }
@@ -124,55 +135,85 @@ void add_int_to_shared_array(struct memCond* shared_struct, int pid) {
 
     // Crea un nuovo segmento di memoria condivisa per il vettore
 
-    int new_shm_id = shmget(1222, shared_struct->nAtomi, 0666);
-    shared_struct->id_vettore_condiviso = new_shm_id;
+    
+    
+    int old_shm_id = shmget(1222,2, IPC_CREAT | 0666);
 
 
 
-    if (new_shm_id == -1) {
+    if (old_shm_id == -1) {
         printf("Errore nella creazione della nuova memoria condivisa ");
         perror("Error: \n");
         exit(EXIT_FAILURE);
     }
+    
 
 
+
+
+
+    //Recupera array condiviso:
+
+    int* old_array = (int*) shmat(old_shm_id, NULL, 0);
+
+    int* private_array = malloc(sizeof(int) * shared_struct->nAtomi);
+
+    memcpy(private_array,old_array,sizeof(int)*(shared_struct->nAtomi));
+    printf("Puntatore del vecchio array: %p\n",old_array);
+    printf("Puntatore dell' array privato: %p\n",private_array);
+    // Elimina l'array condiviso
+
+    shmctl (old_shm_id , IPC_RMID , NULL ) ;
 
     shared_struct->nAtomi = shared_struct->nAtomi + 1;
 
+    // Creazione dell'array condiviso di dimensione n + 1
+    int new_shm_id = shmget(1222, shared_struct->nAtomi, IPC_CREAT | 0666);
+    
+    //Aggiornamento id nuovo array con dimensione ( n + 1 )
 
+    shared_struct->id_vettore_condiviso = new_shm_id;
+    
 
-    // Collega il nuovo segmento di memoria condivisa al tuo spazio di indirizzi
-    //Recupera array condiviso:
-    int* new_array = (int*) shmat(new_shm_id, NULL, 0);
-    int* temp_array = malloc(sizeof(int)*(shared_struct->nAtomi));
+    //int* temp_array = malloc(sizeof(int)*(shared_struct->nAtomi));
+
+    int * new_array = (int*) shmat(new_shm_id, NULL, 0);
 
     if (new_array == NULL) {
+
         printf("Errore nel collegamento della nuova memoria condivisa \n");
         
         exit(EXIT_FAILURE);
+
     }
+
     /*if (shmdt(shared_struct->vPid) == -1) {
         perror("Errore nello staccare il segmento di memoria condivisa");
         // Puoi gestire l'errore in modo appropriato
     }*/
-    // Copia i dati dal vecchio vettore al nuovo
-    memcpy(new_array, temp_array, (shared_struct->nAtomi) * sizeof(int));
 
+    // Copia i dati dal vecchio vettore al nuovo
+    memcpy(new_array, private_array, (shared_struct->nAtomi-2) * sizeof(int));
     // Aggiungi il nuovo intero al vettore
+
     new_array[shared_struct->nAtomi-1] = pid;
+
     printf("Pid dell'ultimo processo: %d\n",new_array[shared_struct->nAtomi-1]);
-    
-    
-    
 
     // Scollega e rilascia il vecchio segmento di memoria condivisa per il vettore
-    //shmdt(new_array);
-    // Aggiorna la struct in memoria condivisa per usare il nuovo vettore
-    //shared_struct->vPid = new_array;
 
+    //shmdt(new_array);
+
+    // Aggiorna la struct in memoria condivisa per usare il nuovo vettore
+
+    //shared_struct->vPid = new_array;
     
-    /*shmdt(new_array);
-    shmctl ( new_shm_id , 0 , NULL ) ;*/
+    /*
+    shmdt(new_array);
+    shmctl ( new_shm_id , 0 , NULL ) ;
+    */
+
     shmdt ( new_array );
+    
     
 }
