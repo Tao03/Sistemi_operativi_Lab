@@ -11,25 +11,25 @@
 void scegliAtomoVittima()
 {
     int id=semget(KEY_SEMAFORO, 0, 0666); //ottengo id del semaforo
+    printf("->Sono attivatore e scelgo atomo vittima\n");
     struct sembuf my_op ;
-    my_op . sem_num = 0;//scelgo il semaforo di sincronizzazione
-    my_op . sem_flg = 0;
-    semop ( id , & my_op , 1) ;//eseguo le operazioni
     int flag=0;
     do
     {
-        printf("Semaforo di sincronizzazione %d\n",semctl(id, 0, GETVAL, 0));
+        
+        //printf("Semaforo di sincronizzazione %d\n",semctl(id, 0, GETVAL, 0));
         if(semctl(id, 0, GETVAL, 0)==1) //se il semaforo è sincronizzato
         {
-            printf("Semaforo prioritario %d\n",semctl(id, 1, GETVAL, 0));
+            
             if(semctl(id, 1, GETVAL, 0)==1) //se il semaforo prioritario è libero
             {
-                printf("Semafori liberi\n");
+                //printf("Semafori liberi\n");
                 flag=1;
                 my_op . sem_num = 1;//scelgo il semaforo prioritario
                 my_op . sem_flg = 0;
                 my_op . sem_op = -1;//occupo il semaforo
                 semop ( id , & my_op , 1) ;//eseguo le operazioni
+                printf("Semaforo prioritario prima: %d\n",semctl(id, 1, GETVAL, 0));
 
                 //sezione critica inizio
                 struct memCond *p;
@@ -42,12 +42,15 @@ void scegliAtomoVittima()
                 printf("Scelgo atomo vittima\n");
 
                 //sezione critica fine
-
+                my_op . sem_num = 1;//scelgo il semaforo prioritario
+                my_op . sem_flg = 0;
                 my_op . sem_op = 1;//rilascio il semaforo
                 semop ( id , & my_op , 1) ;//eseguo le operazioni
+                printf("Semaforo dopo: %d\n",semctl(id, 1, GETVAL, 0));
             }
         }
     } while (flag==0);
+    printf("->Esco da scegliAtomoVittima\n");
     
     
     

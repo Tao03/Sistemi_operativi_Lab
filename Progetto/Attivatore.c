@@ -8,7 +8,7 @@
 #include <sys/sem.h>
 #include "Headers/risorse.h"
 
-#define clock 30
+#define clock 10
 int flag=0;
 int master=1;
 void handle_signal(int signal)
@@ -48,13 +48,15 @@ int main()
     while (semctl(sem_id, 0, GETVAL)==-1){}
     //attende che il master dia il via alla sincronizzazione, da sostituire con segnale di sincronizzazione del master
     printf("Programma sincronizzato\n");
-    alarm(clock);
+    
     while(master) //finchè il processo master non termina
     {
-        
+        alarm(clock);
         pause();
+        printf("SONO ATTIVATORE NEL CICLO\n");
         scegliAtomoVittima();  
         //controllo che il semaforo prioritario sia libero
         //accedo a memoria condivisa
     }
+    printf("SONO ATTIVATORE E TERMINO\n");
 }

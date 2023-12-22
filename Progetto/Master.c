@@ -16,14 +16,14 @@ void main()
    printf("Ho appena dato il via!\n");
    printf("Semaforo impostato con id: %d\n",idSemaforo);
    semop ( idSemaforo , & my_op , 1) ; 
-
+   
 
     /**
      * Inizializzazione della memoria condivisa
     */
     int idMemoriaCondivisa=setMemoriaCondivisa(N_ATOMI_INIT);
     printf("id della memoria condivisa: %d\n",idMemoriaCondivisa);
-
+    
 
     /**
      * Creazione processo alimentatore
@@ -53,7 +53,7 @@ void main()
      * Creazione processi atomi iniziali
     */
    creaAtomi(N_ATOMI_INIT,N_ATOMO_MAX,idMemoriaCondivisa);
-
+   
 
 
   
@@ -61,7 +61,7 @@ void main()
     my_op . sem_flg = 0; /* no flag : default behavior */
     my_op . sem_op = 1; /* accessing the resource */
 
-   printf("Ho appena dato il via!\n");
+   //printf("Ho appena dato il via!\n");
    semop ( idSemaforo , & my_op , 1) ; 
    
    /*
@@ -77,6 +77,7 @@ void main()
     
 
     stampa();
+    
     
     my_op . sem_num = 0; /* only one semaphore in array of semaphores */
     my_op . sem_flg = 0; /* no flag : default behavior */

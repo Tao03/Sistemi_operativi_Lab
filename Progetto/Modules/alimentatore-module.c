@@ -18,7 +18,7 @@ void creaAtomi(int nAtomi){
     /**
      * Dobbiamo innanzitutto allargare la dimensione del vettorei dei pid processi atomo
     */
-   printf("ciaoo\n");
+   //printf("ciaoo\n");
     for(int i=0;i<1;i++){
         int pid = fork();
         if(pid == 0){
@@ -63,7 +63,7 @@ void aggiungiProcessoAtomo(int pid){
         exit(EXIT_FAILURE);
     }
 
-    printf("CHECKPOINT: Il processo alimentatore ha fatto l'accesso alla memoria condivisa!\n");
+    //printf("CHECKPOINT: Il processo alimentatore ha fatto l'accesso alla memoria condivisa!\n");
     struct memCond * datap ; /* shared data struct */
     int idMemoriaCondivisa = shmget(KEY_MEMORIA_CONDIVISA,sizeof(datap),IPC_CREAT | 0666);
     if(idMemoriaCondivisa == -1){
@@ -132,7 +132,7 @@ void aggiungiProcessoAtomo(int pid){
         perror("Errore in alimentatore per chiudere la memoria condivisa ");
         exit(EXIT_FAILURE);
     }
-    printf("CHECKPOINT: Scollegamento dalla memoria!\n");
+    //printf("CHECKPOINT: Scollegamento dalla memoria!\n");
 
 }
 /**
@@ -150,8 +150,8 @@ void add_int_to_shared_array(struct memCond* shared_struct, int pid) {
     // Crea un nuovo segmento di memoria condivisa per il vettore
 
     
-    printf("NUMERO ATOMI: %d\n",shared_struct->nAtomi);
-    printf("Numero di bytes: %ld\n",shared_struct->nAtomi * sizeof(int));
+    //printf("NUMERO ATOMI: %d\n",shared_struct->nAtomi);
+    //printf("Numero di bytes: %ld\n",shared_struct->nAtomi * sizeof(int));
     /*int old_shm_id = shmget(KEY_ARRAY_CONDIVISO,(sizeof(int) * shared_struct->nAtomi), IPC_CREAT | 0666);
 
      
