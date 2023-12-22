@@ -13,7 +13,7 @@
 #include "../Headers/master.h"
 #include "../Headers/risorse.h"
 
-void setSemaforo()
+int setSemaforo()
 {
     int id = semget(KEY_SEMAFORO, 3, 0); // Prova a ottenere l'ID del semaforo esistente
 
@@ -41,6 +41,8 @@ void setSemaforo()
     semctl(id, 1, SETVAL, 1);
     semctl(id, 2, SETVAL, 1);
     //printf("Valore semaforo sincronizzazione: %d\n",semctl(id, 0, GETVAL, 0)); funziona
+
+    return id;
 }
 
 int setMemoriaCondivisa(int nKids) // id = 32819
@@ -62,7 +64,10 @@ int setMemoriaCondivisa(int nKids) // id = 32819
     * ad un errore perchè il master prenderà la memoria condivisa ma con una dimensione vecchia e non quella recente siccome non è aggiornata
    */
   datap->nAtomi = nKids;
-    int id_array_condiviso = shmget(KEY_ARRAY_CONDIVISO, sizeof(int)*datap->nAtomi, IPC_CREAT | 0666);
+    int id_array_condiviso = shmget(KEY_ARRAY_CONDIVISO, 0, 0);
+    printf("Id array condiviso: %d\n",id_array_condiviso);
+
+    id_array_condiviso = shmget(KEY_ARRAY_CONDIVISO, sizeof(int)*datap->nAtomi, IPC_CREAT | 0666);
    
     if (id_array_condiviso == -1)
     {

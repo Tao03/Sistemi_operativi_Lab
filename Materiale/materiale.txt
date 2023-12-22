@@ -35,6 +35,10 @@ struct sembuf my_op ;
     n=0, si legge il valore del semaforo.
 
 
+
+
 Quando terminiamo un processo, non viene tolto il suo PID dal vettore dei PID, ma quando viene generato
 un nuovo processo si controlla con kill(vPid[i],0) se il PID non è presente nei processi attivi restituisce
 -1, allora si può sovrascrivere. Altrimenti è presente.
+
+Per chiudere tutto CTRL+C, ipcrm -m <id>

@@ -151,7 +151,7 @@ void add_int_to_shared_array(struct memCond* shared_struct, int pid) {
 
     
     printf("NUMERO ATOMI: %d\n",shared_struct->nAtomi);
-    printf("Numero di bytes: %d\n",shared_struct->nAtomi * sizeof(int));
+    printf("Numero di bytes: %ld\n",shared_struct->nAtomi * sizeof(int));
     /*int old_shm_id = shmget(KEY_ARRAY_CONDIVISO,(sizeof(int) * shared_struct->nAtomi), IPC_CREAT | 0666);
 
      

@@ -10,6 +10,7 @@
         "atomo.h": "c",
         "sem.h": "c",
         "shm.h": "c",
-        "risorse.h": "c"
+        "risorse.h": "c",
+        "attivatore.h": "c"
     }
 }

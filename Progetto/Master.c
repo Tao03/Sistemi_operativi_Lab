@@ -5,9 +5,6 @@
 void main()
 {
     
-
-
-
     /**
      * Inizializzazione dei 3 semafori
     */
@@ -17,12 +14,20 @@ void main()
     my_op . sem_flg = 0; /* no flag : default behavior */
     my_op . sem_op = -1; /* accessing the resource */
    printf("Ho appena dato il via!\n");
+   printf("Semaforo impostato con id: %d\n",idSemaforo);
    semop ( idSemaforo , & my_op , 1) ; 
+
+
     /**
      * Inizializzazione della memoria condivisa
     */
     int idMemoriaCondivisa=setMemoriaCondivisa(N_ATOMI_INIT);
     printf("id della memoria condivisa: %d\n",idMemoriaCondivisa);
+
+
+    /**
+     * Creazione processo alimentatore
+    */
     int pid = fork();
     if(pid == 0){
         char  * const array[2] = {"2",0};
@@ -31,8 +36,21 @@ void main()
         exit(1);
     }
     printf("PID dell'alimentatore: %d\n",pid);
+
     /**
-     * Creazione processi atomi
+     * Creazione processo attivatore
+    */
+    int pid1 = fork();
+    if(pid1 == 0){
+        char * dummy[1]={"0"};
+        execv("Attivatore",dummy);
+        perror("");
+        exit(1);
+    }
+    printf("PID dell'attivatore: %d\n",pid1);
+
+    /**
+     * Creazione processi atomi iniziali
     */
    creaAtomi(N_ATOMI_INIT,N_ATOMO_MAX,idMemoriaCondivisa);
 
@@ -46,9 +64,13 @@ void main()
    printf("Ho appena dato il via!\n");
    semop ( idSemaforo , & my_op , 1) ; 
    
+   /*
+   *Accesso alla memoria condivisa solo in lettura per la stampa, il master può accedervi in lettura
+   *solo per stampare le statistiche, quindi non è necessario controllare i semafori.
+   */
    while(1){
     sleep(1);
-     my_op . sem_num = 0; /* only one semaphore in array of semaphores */
+    my_op . sem_num = 0; /* only one semaphore in array of semaphores */
     my_op . sem_flg = 0; /* no flag : default behavior */
     my_op . sem_op = -1; /* accessing the resource */
     semop ( idSemaforo , & my_op , 1) ; 
@@ -79,7 +101,7 @@ void stampa(){
     
     if(datap == NULL){
 
-        perror("Processo master in stampa shmget memoria condivisa ");
+        fprintf(stderr,"Processo master in stampa shmget memoria condivisa");
         
         exit(EXIT_FAILURE);
 
@@ -95,7 +117,7 @@ void stampa(){
 
 
     if (idArrayCondiviso == -1) {
-        perror("Processo master in stampa shmget array condiviso");
+        fprintf(stderr,"Processo master in stampa shmget array condiviso");
         printf("Numero atomi %d\n",datap->nAtomi);
         exit(EXIT_FAILURE);
     }*/
@@ -104,7 +126,7 @@ void stampa(){
     int *array = shmat(datap->id_vettore_condiviso, NULL, 0);
 
     if (array == (int *)-1) {
-        perror("Processo master in stampa shmat");
+        fprintf(stderr,"Processo master in stampa shmat");
         exit(EXIT_FAILURE);
     }
 
@@ -118,14 +140,14 @@ void stampa(){
 
     // Non dimenticare di staccare l'area di memoria condivisa quando hai finito
     if (shmdt(array) == -1) {
-        perror("Processo master in stampa shmdt");
+        fprintf(stderr,"Processo master in stampa shmdt");
         exit(EXIT_FAILURE);
     }
 
 
 
     if (shmdt(datap) == -1) {
-        perror("Processo master in stampa shmdt");
+        fprintf(stderr,"Processo master in stampa shmdt");
         exit(EXIT_FAILURE);
     }
 

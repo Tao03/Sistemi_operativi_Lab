@@ -21,7 +21,6 @@ void scissione(int nAtomico, int argc, char* argv[]){
     {
         my_op . sem_num = 0;//scelgo il semaforo di sincronizzazione
         my_op . sem_flg = 0;
-        my_op . sem_op = 0;//leggo il semaforo
         semop ( id , & my_op , 1) ;//eseguo le operazioni
         if(semctl(id, 0, GETVAL, 0)==1)//se siamo sincronizzati
         {
@@ -32,7 +31,8 @@ void scissione(int nAtomico, int argc, char* argv[]){
             int pid=fork();
             if(pid == 0) //è il figlio
             {
-                argv[1]=nAtomicoFiglio;
+                sprintf(argv[1], "%d", nAtomicoFiglio);//converto il numero atomico in stringa (per passarlo come parametro)
+                //argv[1]=nAtomicoFiglio;
                 execve("Atomo",argv,NULL); //<- esegue il figlio con il nuovo numero atomico
             }
             else //è il padre
