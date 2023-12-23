@@ -64,6 +64,7 @@ int setMemoriaCondivisa(int nKids) // id = 32819
     * ad un errore perchè il master prenderà la memoria condivisa ma con una dimensione vecchia e non quella recente siccome non è aggiornata
    */
   datap->nAtomi = nKids;
+  datap->eTot = ENERGY_DEMAND;
     int id_array_condiviso = shmget(KEY_ARRAY_CONDIVISO, 0, 0);
     printf("Id array condiviso: %d\n",id_array_condiviso);
 
@@ -112,6 +113,10 @@ void creaAtomi(int nAtomi, int nAtomoMax, int idMemoriaCondivisa)
 {
     for (int i = 0; i < nAtomi; i++)
     {
+
+
+
+        
         int pid = fork();
         if (pid == 0)
         {
@@ -201,3 +206,17 @@ void insertAtomi(int indice, int pid, int idMemoriaCondivisa){
    //printf("CHECKPOINT: Rilascio memoria condivisa\n\n");
 }
 
+void prelevaEnergia(int eneryDemand){
+
+    int idMemoriaCondivisa = shmget(KEY_MEMORIA_CONDIVISA,sizeof(dummy),IPC_CREAT|0666);
+    if(idMemoriaCondivisa == -1){
+        sprintf(stderr," Errore nel collegamento della memoria condivisa\n");
+    }
+    struct memCond * datap = shmat(idMemoriaCondivisa,NULL,0);
+    if(datap == NULL){
+        sprintf(stderr," Errore, la memoria condivisa è null \n");
+    }
+    datap->eTot  = datap->eTot - eneryDemand;
+    shmdt(datap);
+    printf("Energia prelevata! \n");
+}

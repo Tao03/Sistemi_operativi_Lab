@@ -18,7 +18,7 @@ void getStatistiche();
 //metodo per creare i processi atomo
 void creaAtomi(int nKids, int nAtomoMax, int idMemoriaCondivisa);
 //metodo per prelevare energia
-void prelevaEnergia();
+void prelevaEnergia(int energia);
 
 void stampa();
 

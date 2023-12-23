@@ -1,9 +1,28 @@
-#include "Headers/master.h"
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+#include <time.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/ipc.h>
+#include <sys/sem.h>
 #include <sys/shm.h>
+#include "Headers/master.h"
 #include <stdio.h>
 #include "Headers/risorse.h"
+#define TIMER_PRELEVA 10
+void handle_signal(int signal){
+}
 void main()
 {
+    void handle_signal(int signal); /* the handler */
+    struct sigaction new, old;     
+    memset(&new,0,sizeof(new));     /* set all bytes to zero */
+    new.sa_handler = handle_signal; /* set the handler */
+    sigaction(SIGALRM, &new, NULL);  /* CASE 1: set new handler */
     
     /**
      * Inizializzazione dei 3 semafori
@@ -13,8 +32,6 @@ void main()
     my_op . sem_num = 2; /* only one semaphore in array of semaphores */
     my_op . sem_flg = 0; /* no flag : default behavior */
     my_op . sem_op = -1; /* accessing the resource */
-   printf("Ho appena dato il via!\n");
-   printf("Semaforo impostato con id: %d\n",idSemaforo);
    semop ( idSemaforo , & my_op , 1) ; 
 
 
@@ -22,8 +39,6 @@ void main()
      * Inizializzazione della memoria condivisa
     */
     int idMemoriaCondivisa=setMemoriaCondivisa(N_ATOMI_INIT);
-    printf("id della memoria condivisa: %d\n",idMemoriaCondivisa);
-
 
     /**
      * Creazione processo alimentatore
@@ -35,19 +50,17 @@ void main()
         perror("");
         exit(1);
     }
-    printf("PID dell'alimentatore: %d\n",pid);
 
     /**
      * Creazione processo attivatore
     */
-    int pid1 = fork();
-    if(pid1 == 0){
-        char * dummy[1]={"0"};
+    pid = fork();
+    if(pid == 0){
+        char * const dummy[2]={"0",0};
         execv("Attivatore",dummy);
-        perror("");
+        perror("Errore ");
         exit(1);
     }
-    printf("PID dell'attivatore: %d\n",pid1);
 
     /**
      * Creazione processi atomi iniziali
@@ -60,8 +73,6 @@ void main()
     my_op . sem_num = 2; /* only one semaphore in array of semaphores */
     my_op . sem_flg = 0; /* no flag : default behavior */
     my_op . sem_op = 1; /* accessing the resource */
-
-   printf("Ho appena dato il via!\n");
    semop ( idSemaforo , & my_op , 1) ; 
    
    /*
@@ -69,7 +80,8 @@ void main()
    *solo per stampare le statistiche, quindi non è necessario controllare i semafori.
    */
    while(1){
-    sleep(1);
+    alarm(TIMER_PRELEVA);
+    pause();
     my_op . sem_num = 0; /* only one semaphore in array of semaphores */
     my_op . sem_flg = 0; /* no flag : default behavior */
     my_op . sem_op = -1; /* accessing the resource */
@@ -77,6 +89,7 @@ void main()
     
 
     stampa();
+    prelevaEnergia(10);
     
     my_op . sem_num = 0; /* only one semaphore in array of semaphores */
     my_op . sem_flg = 0; /* no flag : default behavior */
@@ -132,13 +145,15 @@ void stampa(){
 
     
     for (int i = 0; i < datap->nAtomi; i++) {
-
+        
         printf("Pid del processo atomo: [%d]\n", array[i]);
 
     }
+    printf("ENERGIA TOTALE: %d",datap->eTot);
     printf("-------------------------------------------------\n\n\n");
 
     // Non dimenticare di staccare l'area di memoria condivisa quando hai finito
+
     if (shmdt(array) == -1) {
         fprintf(stderr,"Processo master in stampa shmdt");
         exit(EXIT_FAILURE);

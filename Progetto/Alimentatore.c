@@ -11,7 +11,7 @@
 #include <sys/sem.h>
 #include <sys/shm.h>
 
-#define TIMER 10
+#define TIMER 5
 
 # include "Headers/alimentatore.h"
 # include <signal.h>
@@ -50,11 +50,6 @@ int main(int argc, char* argv[])
         perror("Errore sul semaforo: ");
     } 
 
-
-
-    /* blocking if others hold resource */
-
-   // printf("Il master mi ha dato il via!");
 
 
     while(1) //va sostituito con l'attesa di terminazione dal master

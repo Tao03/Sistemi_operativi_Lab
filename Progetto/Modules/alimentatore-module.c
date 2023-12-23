@@ -19,7 +19,7 @@ void creaAtomi(int nAtomi){
      * Dobbiamo innanzitutto allargare la dimensione del vettorei dei pid processi atomo
     */
    printf("ciaoo\n");
-    for(int i=0;i<1;i++){
+    for(int i=0;i<nAtomi;i++){
         int pid = fork();
         if(pid == 0){
             /**
@@ -76,10 +76,6 @@ void aggiungiProcessoAtomo(int pid){
         exit(EXIT_FAILURE);
     }
 
-  /*  if (datap->vPid == (int *)(-1)) {
-        perror("shmat");
-        exit(EXIT_FAILURE);
-    }*/
     
     
     //datap->nAtomi = datap->nAtomi + 1;
