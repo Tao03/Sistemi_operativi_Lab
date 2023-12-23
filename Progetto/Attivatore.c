@@ -17,7 +17,9 @@ void handle_signal(int signal)
 }
 void handle_sighup(int signal)
 {
-    master=0;
+    //master=0;
+    printf("Sono attivatore e ho ricevuto SIGHUP\n");
+    kill(getpid(),SIGKILL);
 }
 
 int main()
@@ -51,10 +53,21 @@ int main()
     alarm(clock);
     while(master) //finchè il processo master non termina
     {
+<<<<<<< Updated upstream
         
         pause();
+=======
+        printf("PID attivatore: %d\n",getpid());
+        alarm(clock);
+        pause();
+        //printf("SONO ATTIVATORE NEL CICLO\n");
+>>>>>>> Stashed changes
         scegliAtomoVittima();  
         //controllo che il semaforo prioritario sia libero
         //accedo a memoria condivisa
     }
+<<<<<<< Updated upstream
+=======
+    //printf("SONO ATTIVATORE E TERMINO\n");
+>>>>>>> Stashed changes
 }
