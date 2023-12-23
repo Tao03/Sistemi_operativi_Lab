@@ -33,7 +33,7 @@ void main()
     my_op . sem_flg = 0; /* no flag : default behavior */
     my_op . sem_op = -1; /* accessing the resource */
    semop ( idSemaforo , & my_op , 1) ; 
-
+   
 
     /**
      * Inizializzazione della memoria condivisa
@@ -66,7 +66,7 @@ void main()
      * Creazione processi atomi iniziali
     */
    creaAtomi(N_ATOMI_INIT,N_ATOMO_MAX,idMemoriaCondivisa);
-
+   
 
 
   
@@ -90,6 +90,7 @@ void main()
 
     stampa();
     prelevaEnergia(10);
+    
     
     my_op . sem_num = 0; /* only one semaphore in array of semaphores */
     my_op . sem_flg = 0; /* no flag : default behavior */
