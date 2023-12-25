@@ -29,11 +29,27 @@ void main()
     /**
      * Inizializzazione dei 3 semafori
     */
+   int pid = fork();
+    if(pid == 0){
+        char * const dummy[2]={"0",0};
+        execv("Attivatore",dummy);
+        perror("Errore ");
+        exit(1);
+    }
+    /*int pid = fork();
+    if(pid == 0){
+        char  * const array[2] = {"2",0};
+        execv("Alimentatore",array);
+        perror("");
+        exit(1);
+    }*/
     struct sembuf my_op ;
     int idSemaforo = setSemaforo();
-    my_op . sem_num = 2; /* only one semaphore in array of semaphores */
+    my_op . sem_num = 0; /* only one semaphore in array of semaphores */
     my_op . sem_flg = 0; /* no flag : default behavior */
-    my_op . sem_op = -1; /* accessing the resource */
+    my_op . sem_op = 1; /* accessing the resource */
+    sleep(10);
+
    semop ( idSemaforo , & my_op , 1) ; 
    
 
@@ -45,21 +61,9 @@ void main()
     /**
      * Creazione processo alimentatore
     */
-   /*int pid = fork();
-    if(pid == 0){
-        char  * const array[2] = {"2",0};
-        execv("Alimentatore",array);
-        perror("");
-        exit(1);
-    }*/
+   
 
-    int pid = fork();
-    if(pid == 0){
-        char * const dummy[2]={"0",0};
-        execv("Attivatore",dummy);
-        perror("Errore ");
-        exit(1);
-    }
+    
 
     /**
      * Creazione processi atomi iniziali

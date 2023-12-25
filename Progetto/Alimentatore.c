@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
     sigaction(SIGALRM, &new, NULL);  /* CASE 1: set new handler */
 
     struct sembuf my_op ;
-    my_op . sem_num = 2; /* only one semaphore in array of semaphores */
+    my_op . sem_num = 0; /* only one semaphore in array of semaphores */
     my_op . sem_flg = 0; /* no flag : default behavior */
     my_op . sem_op = -1; /* accessing the resource */
     int idSemaforo = semget(KEY_SEMAFORO, 3, IPC_CREAT | 0666);

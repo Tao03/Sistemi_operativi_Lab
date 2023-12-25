@@ -37,9 +37,9 @@ int setSemaforo()
     }
 
     // Imposta i valori iniziali dei semafori
-    semctl(id, 0, SETVAL, 1);/*-1 impostato a 1 solo per test*/
-    semctl(id, 1, SETVAL, 1);
-    semctl(id, 2, SETVAL, 1);
+    semctl(id, 0, SETVAL, -1);/* Semaforo sincronizazzione-1 impostato a 1 solo per test*/
+    semctl(id, 1, SETVAL, 1); // Semaforo prioritario
+    semctl(id, 2, SETVAL, 1); // Semaforo per atomi
     //printf("Valore semaforo sincronizzazione: %d\n",semctl(id, 0, GETVAL, 0)); funziona
 
     return id;

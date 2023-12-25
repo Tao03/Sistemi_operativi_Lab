@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 #include "Headers/attivatore.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -8,7 +9,7 @@
 #include <sys/sem.h>
 #include "Headers/risorse.h"
 
-#define clock 10
+#define clock 2
 int flag=0;
 int master=1;
 void handle_signal(int signal)
@@ -47,7 +48,15 @@ int main()
     }
 
     int sem_id = semget(KEY_SEMAFORO, 0, 0);
-    while (semctl(sem_id, 0, GETVAL)==-1){}
+    //while (semctl(sem_id, 0, GETVAL)==-1){}
+    struct sembuf my_op ;
+    my_op . sem_num = 0; /* only one semaphore in array of semaphores */
+    my_op . sem_flg = 0; /* no flag : default behavior */
+    my_op . sem_op = -1; /* accessing the resource */
+    if(semop(sem_id,&my_op,1)==-1){
+        fprintf(stderr,"Errore nell'accesso col semaforo di partenza\n");
+        exit(EXIT_FAILURE);
+    }
     //attende che il master dia il via alla sincronizzazione, da sostituire con segnale di sincronizzazione del master
     //printf("Programma sincronizzato\n");
     alarm(clock);
