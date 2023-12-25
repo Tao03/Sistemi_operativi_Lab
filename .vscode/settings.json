@@ -11,6 +11,9 @@
         "sem.h": "c",
         "shm.h": "c",
         "risorse.h": "c",
-        "attivatore.h": "c"
-    }
+        "attivatore.h": "c",
+        "types.h": "c",
+        "string.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }

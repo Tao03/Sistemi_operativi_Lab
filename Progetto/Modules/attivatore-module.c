@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <time.h>
 #include "../Headers/risorse.h"
 #include "../Headers/attivatore.h"
 void scegliAtomoVittima()
@@ -26,12 +27,25 @@ void scegliAtomoVittima()
         int nAtomi = p->nAtomi;
         //int idvet=shmget(KEY_ARRAY_CONDIVISO, sizeof(int)*nAtomi, 0666); //ottengo id del vettore
         //printf("ACCESSO VETTORE CONDIVISO\n");
-        int *vPid = shmat(p->id_vettore_condiviso, NULL, SHM_RDONLY); //ottengo il puntatore al vettore
+        int *vPid = shmat(p->id_vettore_condiviso, NULL, 0); //ottengo il puntatore al vettore
         
-        printf("Numero atomi: %d\n",nAtomi);
-        srand(getpid());
-        int pidVittima = vPid[rand()%nAtomi];
-        kill(pidVittima, SIGKILL);
+            printf("Numero atomi: %d\n",nAtomi);
+        /**
+         * E' sconveniente usare getPid() perchè srand usa sempre lo stesso valore(overro il pid dell'allimentatore siccome muore alla fine della
+         * simulazione) e quindi genera lo stesso valore casuale
+        */
+        srand(time(NULL));
+        int indiceProcessoVittima = rand()%nAtomi;
+        printf("Posizione %d\n",indiceProcessoVittima);
+        int pidVittima = vPid[indiceProcessoVittima];
+        if(vPid[indiceProcessoVittima] != -1){
+            kill(pidVittima, SIGUSR1);
+            printf("INVIATO SEGNALE AD ATOMO\n");
+            //vPid[indiceProcessoVittima] = -1;
+        }
+        
+        
+        
         printf("Atomo ucciso %d\n",pidVittima);
 
     //sezione critica fine

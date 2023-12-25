@@ -13,8 +13,10 @@
 #include "Headers/master.h"
 #include <stdio.h>
 #include "Headers/risorse.h"
-#define TIMER_PRELEVA 10
+#define TIMER_PRELEVA 5
+int flag = 0;
 void handle_signal(int signal){
+    flag = 1;
 }
 void main()
 {
@@ -38,23 +40,20 @@ void main()
     /**
      * Inizializzazione della memoria condivisa
     */
-    int idMemoriaCondivisa=setMemoriaCondivisa(N_ATOMI_INIT);
+    int idMemoriaCondivisa=setMemoriaCondivisa(10);
 
     /**
      * Creazione processo alimentatore
     */
-    int pid = fork();
+   /*int pid = fork();
     if(pid == 0){
         char  * const array[2] = {"2",0};
         execv("Alimentatore",array);
         perror("");
         exit(1);
-    }
+    }*/
 
-    /**
-     * Creazione processo attivatore
-    */
-    pid = fork();
+    int pid = fork();
     if(pid == 0){
         char * const dummy[2]={"0",0};
         execv("Attivatore",dummy);
@@ -80,9 +79,13 @@ void main()
    *solo per stampare le statistiche, quindi non è necessario controllare i semafori.
    */
    while(1){
+
     alarm(TIMER_PRELEVA);
-    pause();
-    my_op . sem_num = 0; /* only one semaphore in array of semaphores */
+    wait(NULL);
+    if(flag == 0){
+        pause();
+    }
+    my_op . sem_num = 1; /* only one semaphore in array of semaphores */
     my_op . sem_flg = 0; /* no flag : default behavior */
     my_op . sem_op = -1; /* accessing the resource */
     semop ( idSemaforo , & my_op , 1) ; 
@@ -92,11 +95,9 @@ void main()
     prelevaEnergia(10);
     
     
-    my_op . sem_num = 0; /* only one semaphore in array of semaphores */
-    my_op . sem_flg = 0; /* no flag : default behavior */
     my_op . sem_op = 1; /* accessing the resource */
     semop ( idSemaforo , & my_op , 1) ; 
-
+    flag = 0;
 
 
    }

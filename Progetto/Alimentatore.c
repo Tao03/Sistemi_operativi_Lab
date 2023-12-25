@@ -11,7 +11,7 @@
 #include <sys/sem.h>
 #include <sys/shm.h>
 
-#define TIMER 5
+#define TIMER 2
 
 # include "Headers/alimentatore.h"
 # include <signal.h>
@@ -57,14 +57,23 @@ int main(int argc, char* argv[])
 
 
         alarm(TIMER);
-        pause();
+
+        wait(NULL);
+
+        if(flag == 0){
+            pause();
+        }
+
         creaAtomi(nKids);
+        flag = 0;
+        
 
         
     }
     
 }
 void handle_signal(int signum){
+    flag = 1;
     //printf("CHECKPOINT: segnale arrivato\n");
     //printf("CHECKPOINT: HANDLE FINITO\n");
 }

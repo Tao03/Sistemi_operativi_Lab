@@ -47,7 +47,7 @@ int setSemaforo()
 
 int setMemoriaCondivisa(int nKids) // id = 32819
 {
-    printf("Dimensione del dummy: %ld\n",sizeof(dummy));
+    //printf("Dimensione del dummy: %ld\n",sizeof(dummy));
     int idMemoriaCondivisa = shmget(KEY_MEMORIA_CONDIVISA, sizeof(dummy), IPC_CREAT | 0666);
     /**
      * Si crea un array di interi condiviso
@@ -66,7 +66,7 @@ int setMemoriaCondivisa(int nKids) // id = 32819
   datap->nAtomi = nKids;
   datap->eTot = ENERGY_DEMAND;
     int id_array_condiviso = shmget(KEY_ARRAY_CONDIVISO, 0, 0);
-    printf("Id array condiviso: %d\n",id_array_condiviso);
+    //printf("Id array condiviso: %d\n",id_array_condiviso);
 
     id_array_condiviso = shmget(KEY_ARRAY_CONDIVISO, sizeof(int)*datap->nAtomi, IPC_CREAT | 0666);
    
@@ -129,8 +129,8 @@ void creaAtomi(int nAtomi, int nAtomoMax, int idMemoriaCondivisa)
             char stringa[100];
             sprintf(stringa, "%d", numeroAtomico);
             char  * const array[2] = {stringa,0};
-            //execv("Atomo",array);
-            //perror("");
+            execv("Atomo",array);
+            perror("");
             exit(EXIT_SUCCESS);
 
 
@@ -210,13 +210,13 @@ void prelevaEnergia(int eneryDemand){
 
     int idMemoriaCondivisa = shmget(KEY_MEMORIA_CONDIVISA,sizeof(dummy),IPC_CREAT|0666);
     if(idMemoriaCondivisa == -1){
-        sprintf(stderr," Errore nel collegamento della memoria condivisa\n");
+        fprintf( stderr," Errore nel collegamento della memoria condivisa\n");
     }
     struct memCond * datap = shmat(idMemoriaCondivisa,NULL,0);
     if(datap == NULL){
-        sprintf(stderr," Errore, la memoria condivisa è null \n");
+        fprintf(stderr," Errore, la memoria condivisa è null \n");
     }
     datap->eTot  = datap->eTot - eneryDemand;
     shmdt(datap);
-    printf("Energia prelevata! \n");
+    //printf("Energia prelevata! \n");
 }

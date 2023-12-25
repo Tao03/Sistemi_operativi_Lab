@@ -12,9 +12,9 @@ void handler(int signal)
     flag=1;
 }
 int main(int argc, char* argv[]){
-    //printf("Sono il processo atomo e sono stato eseguito!\n");
-    int nAtomico = strtol(argv[1],NULL,10); //numero atomico
-    //printf("Il mio numero atomico è: %d \n",nAtomico);
+    printf("Sono il processo atomo e sono stato eseguito!\n");
+    int nAtomico = strtol(argv[0],NULL,10); //numero atomico
+    printf("Il mio numero atomico è: %d \n",nAtomico);
 
     //inizializzo l'handler
     struct sigaction sa;
@@ -29,8 +29,10 @@ int main(int argc, char* argv[]){
     while (1) //da sostituire col segnale di terminazione
     {
         //l'atomo non fa nulla se non viene effettuata la scissione
-        while(flag==0)
-        {}
+        /*while(flag==0)
+        {}*/
+        
+        pause();
         printf("Sono l'atomo e sono riuscito a ricevere il segnale\n");
         if(nAtomico>N_ATOMICO_MIN)
         {
@@ -40,6 +42,7 @@ int main(int argc, char* argv[]){
         else
         {
             printf("Sono l'atomo e non ho abbastanza energia per scindermi\n");
+            exit(EXIT_SUCCESS);
             /*ATOMO CHE MUORE*/
         }
     }
