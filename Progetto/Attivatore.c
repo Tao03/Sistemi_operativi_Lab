@@ -9,7 +9,7 @@
 #include <sys/sem.h>
 #include "Headers/risorse.h"
 
-#define clock 30
+#define clock 5
 int flag=0;
 int master=1;
 void handle_signal(int signal)
@@ -19,7 +19,7 @@ void handle_signal(int signal)
 void handle_sighup(int signal)
 {
     //master=0;
-    printf("Sono attivatore e ho ricevuto SIGHUP\n");
+    //printf("Sono attivatore e ho ricevuto SIGHUP\n");
     kill(getpid(),SIGKILL);
 }
 
@@ -53,6 +53,11 @@ int main()
     my_op . sem_num = 0; /* only one semaphore in array of semaphores */
     my_op . sem_flg = 0; /* no flag : default behavior */
     my_op . sem_op = -1; /* accessing the resource */
+    if(semop(sem_id,&my_op,1)==-1){
+        fprintf(stderr,"Errore nell'accesso col semaforo di partenza\n");
+        exit(EXIT_FAILURE);
+    }
+    my_op . sem_op = 1; /* accessing the resource */
     if(semop(sem_id,&my_op,1)==-1){
         fprintf(stderr,"Errore nell'accesso col semaforo di partenza\n");
         exit(EXIT_FAILURE);

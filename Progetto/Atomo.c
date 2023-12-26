@@ -3,18 +3,37 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
+#include <sys/sem.h>
+#include <sys/shm.h>
+#include <sys/wait.h>
 #include "Headers/atomo.h"
 #include "Headers/risorse.h"
-
+int flag = 0;
 void handler(int signal)
 {
-    printf("Sono entrato nell'handler\n");
+    flag = 1;
+    //printf("Sono entrato nell'handler\n");
 }
 int main(int argc, char* argv[]){
-    printf("Sono il processo atomo e sono stato eseguito!\n");
     int nAtomico = strtol(argv[0],NULL,10); //numero atomico
-    printf("Il mio numero atomico è: %d \n",nAtomico);
+    printf("ATOMO %d: Sono un nuovo atomo e il mio numero atomico è: %d \n",getpid(),nAtomico);
 
+    int id = semget(KEY_SEMAFORO, 1, 0666); // ottengo id del semaforo
+    struct sembuf my_op;
+    my_op.sem_num = 0; // scelgo il semaforo di sincronizzazione
+    my_op.sem_flg = 0;
+    my_op.sem_op = -1; // occupo il semaforo
+    if (semop(id, &my_op, 1) == -1)
+    {
+        fprintf(stderr, "Errore nell'accesso col semaforo di partenza\n");
+        exit(EXIT_FAILURE);
+    }
+    my_op.sem_op = 1; // occupo il semaforo
+     if (semop(id, &my_op, 1) == -1)
+    {
+        fprintf(stderr, "Errore nell'accesso col semaforo di partenza\n");
+        exit(EXIT_FAILURE);
+    }
     //inizializzo l'handler
     struct sigaction sa;
     sigset_t my_mask;
@@ -30,20 +49,22 @@ int main(int argc, char* argv[]){
         //l'atomo non fa nulla se non viene effettuata la scissione
         /*while(flag==0)
         */
-        
-        pause();
-        printf("Sono l'atomo e sono riuscito a ricevere il segnale\n");
+        wait(NULL);
+        if(flag == 0){
+            pause();
+        }
         if(nAtomico>N_ATOMICO_MIN)
         {
-            printf("Sono l'atomo e ho abbastanza energia per scindermi\n");
-            scissione(nAtomico, argc, argv);
+            printf("ATOMO %d: Ho abbastanza energia per scindermi\n",getpid());
+            scissione(&nAtomico, argc, argv);
         }
         else
         {
-            printf("Sono l'atomo e non ho abbastanza energia per scindermi\n");
-            exit(EXIT_SUCCESS);
-            /*ATOMO CHE MUORE*/
+            printf("ATOMO %d: Non ho abbastanza energia per scindermi quindi mi suicido\n",getpid());
+            removePid( getpid(),id,nAtomico);
+            kill(getpid(),SIGKILL);
         }
+        flag = 0;
     }
     
     

@@ -12,7 +12,6 @@
 void scegliAtomoVittima()
 {
     int idsem=semget(KEY_SEMAFORO, 0, 0666); //ottengo id del semaforo
-    printf("\n->Sono attivatore e scelgo atomo vittima\n");
     struct sembuf my_op;
     my_op . sem_num = 1;//scelgo il semaforo prioritario
     my_op . sem_flg = 0;
@@ -28,31 +27,23 @@ void scegliAtomoVittima()
         //printf("ACCESSO VETTORE CONDIVISO\n");
         int *vPid = shmat(p->id_vettore_condiviso, NULL, 0); //ottengo il puntatore al vettore
         
-            printf("Numero atomi: %d\n",nAtomi);
         /**
          * E' sconveniente usare getPid() perchè srand usa sempre lo stesso valore(overro il pid dell'allimentatore siccome muore alla fine della
          * simulazione) e quindi genera lo stesso valore casuale
         */
         srand(time(NULL));
         int indiceProcessoVittima = rand()%nAtomi;
-        printf("Posizione %d\n",indiceProcessoVittima);
         int pidVittima = vPid[indiceProcessoVittima];
         if(vPid[indiceProcessoVittima] != -1){
             kill(pidVittima, SIGUSR1);
-            printf("INVIATO SEGNALE AD ATOMO\n");
-            vPid[indiceProcessoVittima] = -1;
+            
         }
-        
-        
-        
-        printf("Atomo ucciso %d\n",pidVittima);
 
     //sezione critica fine
     my_op . sem_num = 1;//scelgo il semaforo prioritario
     my_op . sem_flg = 0;
     my_op . sem_op = 1;//rilascio il semaforo
     semop ( idsem , & my_op , 1) ;//eseguo le operazioni
-    printf("->Esco da scegliAtomoVittima\n\n");
     
     
     

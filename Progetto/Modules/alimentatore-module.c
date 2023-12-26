@@ -177,7 +177,6 @@ void add_int_to_shared_array(struct memCond *shared_struct, int pid)
 
     
     int index = check(old_array, shared_struct->nAtomi);
-    printf("POSIZIONE: %d\n",index);
     if (index != -1)
     {
         old_array[index] = pid;

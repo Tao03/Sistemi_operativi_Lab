@@ -48,8 +48,11 @@ int main(int argc, char* argv[])
 
     if(semop ( idSemaforo , & my_op , 1) == -1){
         perror("Errore sul semaforo: ");
+    }
+    my_op . sem_op = 1; /* accessing the resource */
+    if(semop ( idSemaforo , & my_op , 1) == -1){
+        perror("Errore sul semaforo: ");
     } 
-
 
 
     while(1) //va sostituito con l'attesa di terminazione dal master

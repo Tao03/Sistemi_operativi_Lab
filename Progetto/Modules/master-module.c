@@ -64,6 +64,7 @@ int setMemoriaCondivisa(int nKids) // id = 32819
     * ad un errore perchè il master prenderà la memoria condivisa ma con una dimensione vecchia e non quella recente siccome non è aggiornata
    */
   datap->nAtomi = nKids;
+  datap->scorie = 0;
   datap->eTot = ENERGY_DEMAND;
     int id_array_condiviso = shmget(KEY_ARRAY_CONDIVISO, 0, 0);
     //printf("Id array condiviso: %d\n",id_array_condiviso);
@@ -217,6 +218,7 @@ void prelevaEnergia(int eneryDemand){
         fprintf(stderr," Errore, la memoria condivisa è null \n");
     }
     datap->eTot  = datap->eTot - eneryDemand;
+    
     shmdt(datap);
     //printf("Energia prelevata! \n");
 }
