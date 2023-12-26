@@ -9,7 +9,7 @@
 #include <sys/sem.h>
 #include "Headers/risorse.h"
 
-#define clock 2
+#define clock 30
 int flag=0;
 int master=1;
 void handle_signal(int signal)

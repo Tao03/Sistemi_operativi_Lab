@@ -25,7 +25,6 @@ void scegliAtomoVittima()
         p=shmat(idmem, NULL, SHM_RDONLY); //ottengo il puntatore alla memoria condivisa
         //printf("ACCESSO MEMORIA CONDIVISA\n");
         int nAtomi = p->nAtomi;
-        //int idvet=shmget(KEY_ARRAY_CONDIVISO, sizeof(int)*nAtomi, 0666); //ottengo id del vettore
         //printf("ACCESSO VETTORE CONDIVISO\n");
         int *vPid = shmat(p->id_vettore_condiviso, NULL, 0); //ottengo il puntatore al vettore
         
@@ -41,7 +40,7 @@ void scegliAtomoVittima()
         if(vPid[indiceProcessoVittima] != -1){
             kill(pidVittima, SIGUSR1);
             printf("INVIATO SEGNALE AD ATOMO\n");
-            //vPid[indiceProcessoVittima] = -1;
+            vPid[indiceProcessoVittima] = -1;
         }
         
         

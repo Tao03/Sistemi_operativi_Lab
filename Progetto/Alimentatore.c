@@ -11,7 +11,7 @@
 #include <sys/sem.h>
 #include <sys/shm.h>
 
-#define TIMER 2
+#define TIMER 10
 
 # include "Headers/alimentatore.h"
 # include <signal.h>
@@ -57,13 +57,13 @@ int main(int argc, char* argv[])
 
 
         alarm(TIMER);
-
+        
         wait(NULL);
 
         if(flag == 0){
             pause();
         }
-
+        
         creaAtomi(nKids);
         flag = 0;
         

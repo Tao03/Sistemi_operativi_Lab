@@ -5,11 +5,10 @@
 #include <unistd.h>
 #include "Headers/atomo.h"
 #include "Headers/risorse.h"
-int flag=0;
+
 void handler(int signal)
 {
     printf("Sono entrato nell'handler\n");
-    flag=1;
 }
 int main(int argc, char* argv[]){
     printf("Sono il processo atomo e sono stato eseguito!\n");
@@ -30,7 +29,7 @@ int main(int argc, char* argv[]){
     {
         //l'atomo non fa nulla se non viene effettuata la scissione
         /*while(flag==0)
-        {}*/
+        */
         
         pause();
         printf("Sono l'atomo e sono riuscito a ricevere il segnale\n");

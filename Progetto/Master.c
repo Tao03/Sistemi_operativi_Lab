@@ -36,13 +36,14 @@ void main()
         perror("Errore ");
         exit(1);
     }
-    /*int pid = fork();
+    /*pid = fork();
     if(pid == 0){
         char  * const array[2] = {"2",0};
         execv("Alimentatore",array);
         perror("");
         exit(1);
-    }*/
+    }
+    */
     struct sembuf my_op ;
     int idSemaforo = setSemaforo();
     my_op . sem_num = 0; /* only one semaphore in array of semaphores */
