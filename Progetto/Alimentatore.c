@@ -1,4 +1,3 @@
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -11,7 +10,7 @@
 #include <sys/sem.h>
 #include <sys/shm.h>
 
-#define TIMER 10
+
 
 # include "Headers/alimentatore.h"
 # include <signal.h>
@@ -59,7 +58,7 @@ int main(int argc, char* argv[])
     {
 
 
-        alarm(TIMER);
+        alarm(TIMER_ALIMENTATORE);
         
         wait(NULL);
 

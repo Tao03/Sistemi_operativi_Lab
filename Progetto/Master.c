@@ -1,19 +1,6 @@
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <time.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/ipc.h>
-#include <sys/sem.h>
-#include <sys/shm.h>
 #include "Headers/master.h"
-#include <stdio.h>
 #include "Headers/risorse.h"
-#define TIMER_PRELEVA 5
+
 int flag = 0;
 int pidAlimentatore;
 int pidAttivatore;
@@ -160,91 +147,5 @@ void main()
     }
 }
 
-int checkEnergia()
-{
-    int idMemoriaCondivisa = shmget(KEY_MEMORIA_CONDIVISA, sizeof(dummy), IPC_CREAT | 0666);
-    struct memCond *datap = shmat(idMemoriaCondivisa, NULL, 0);
-    if (datap == NULL)
-    {
-
-        fprintf(stderr, "Processo master in stampa shmget memoria condivisa");
-
-        exit(EXIT_FAILURE);
-    }
-    int value = 0;
-    if (datap->eTot > ENERGY_EXPLODE_THRESHOLD)
-    {
-        value = 1;
-    }
-    if (datap->eTot < 0)
-    {
-        value = 2;
-    }
-    if (shmdt(datap) == -1)
-    {
-        fprintf(stderr, "Processo master in checkEnergia shmdt");
-        exit(EXIT_FAILURE);
-    }
-    return value;
-}
-
-void stampa()
-{
-    printf("----------------------STATISTICHE----------------------\n");
-    int idMemoriaCondivisa = shmget(KEY_MEMORIA_CONDIVISA, sizeof(dummy), IPC_CREAT | 0666);
-
-    struct memCond *datap = shmat(idMemoriaCondivisa, NULL, 0);
-
-    if (datap == NULL)
-    {
-
-        fprintf(stderr, "Processo master in stampa shmget memoria condivisa");
-
-        exit(EXIT_FAILURE);
-    }
-
-    printf("Numero di atomi: %d\n", datap->nAtomi);
-    printf("Scorie totali: %d\n", datap->scorie);
-
-    /*int idArrayCondiviso = shmget(KEY_ARRAY_CONDIVISO, sizeof(int)*datap->nAtomi, IPC_CREAT | 0666);
 
 
-
-
-    if (idArrayCondiviso == -1) {
-        fprintf(stderr,"Processo master in stampa shmget array condiviso");
-        printf("Numero atomi %d\n",datap->nAtomi);
-        exit(EXIT_FAILURE);
-    }*/
-
-    // int id_array_condiviso = shmget(KEY_ARRAY_CONDIVISO,10,IPC_CREAT | 0666);
-    int *array = shmat(datap->id_vettore_condiviso, NULL, 0);
-
-    if (array == (int *)-1)
-    {
-        fprintf(stderr, "Processo master in stampa shmat");
-        exit(EXIT_FAILURE);
-    }
-
-    for (int i = 0; i < datap->nAtomi; i++)
-    {
-
-        printf("Pid del processo atomo: [%d]\n", array[i]);
-    }
-    printf("ENERGIA TOTALE: %d\n", datap->eTot);
-    printf("-------------------------------------------------------\n");
-
-    // Non dimenticare di staccare l'area di memoria condivisa quando hai finito
-
-    if (shmdt(array) == -1)
-    {
-        fprintf(stderr, "Processo master in stampa shmdt");
-        exit(EXIT_FAILURE);
-    }
-
-    if (shmdt(datap) == -1)
-    {
-        fprintf(stderr, "Processo master in stampa shmdt");
-        exit(EXIT_FAILURE);
-    }
-}

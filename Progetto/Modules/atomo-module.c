@@ -25,6 +25,16 @@ int check(int *array, int size)
     }
     return index;
 }
+int find(int elem,int * array,int n)
+{
+    int index = -1;
+    for(int i = 0;i<n && index == -1;i++){
+        if(array[i]==elem){
+            index = i;
+        }
+    }
+    return index;
+}
 void aggiungiAtomo(int pid, int energiaLiberata)
 {
     struct memCond *shared_struct; /* shared data struct */
@@ -223,13 +233,6 @@ void removePid(int pid,int idSemaforo, int nAtomico){
 
    
 }
-int find(int elem,int * array,int n){
-    int index = -1;
-    for(int i = 0;i<n && index == -1;i++){
-        if(array[i]==elem){
-            index = i;
-        }
-    }
-    return index;
-}
+
+
 

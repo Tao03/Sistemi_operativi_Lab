@@ -1,15 +1,7 @@
-#define _GNU_SOURCE
 #include "Headers/attivatore.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/sem.h>
 #include "Headers/risorse.h"
 
-#define clock 5
+
 int flag=0;
 int master=1;
 void handle_signal(int signal)
@@ -64,11 +56,11 @@ int main()
     }
     //attende che il master dia il via alla sincronizzazione, da sostituire con segnale di sincronizzazione del master
     //printf("Programma sincronizzato\n");
-    alarm(clock);
+    alarm(TIMER_ATTIVATORE);
     while(master) //finchè il processo master non termina
     {
         //printf("PID attivatore: %d\n",getpid());
-        alarm(clock);
+        alarm(TIMER_ATTIVATORE);
         pause();
         //printf("SONO ATTIVATORE NEL CICLO\n");
         scegliAtomoVittima();  

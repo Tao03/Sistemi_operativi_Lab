@@ -1,4 +1,3 @@
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -9,6 +8,8 @@
 #include <sys/wait.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
+#include <sys/shm.h>
+
 //metodo per inizializzare il semaforo normale
 int setSemaforo();
 //metodo per inizializzare la memoria condivisa
@@ -23,3 +24,8 @@ void prelevaEnergia(int energia);
 void stampa();
 
 void insertAtomi(int indice, int pid, int idMemoriaCondivisa);
+
+
+int checkEnergia();
+
+void stampa();

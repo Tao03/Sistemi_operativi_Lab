@@ -9,6 +9,14 @@
 #define ENERGY_EXPLODE_THRESHOLD 1500
 #define N_ATOMICO_MIN 25 //numero atomico minimo per fare la scissione
 #define N_ATOMICO_MAX 100 //numero atomico massimo che può avere un atomo
+
+#define TIMER_ALIMENTATORE 10
+#define TIMER_PRELEVA 5
+#define TIMER_ATTIVATORE 5
+
+
+
+
 #ifndef STRUCT
 #define STRUCT
 extern struct memCond

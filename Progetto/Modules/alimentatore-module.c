@@ -10,6 +10,11 @@
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
+
+
+
+
+
 #include "../Headers/alimentatore.h"
 #include "../Headers/risorse.h"
 int id = 0;
