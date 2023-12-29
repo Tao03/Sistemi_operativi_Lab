@@ -17,7 +17,7 @@ void scegliAtomoVittima()
     my_op . sem_flg = 0;
     my_op . sem_op = -1;//occupo il semaforo
     semop ( idsem, & my_op , 1) ;//eseguo le operazioni
-
+    //printf("SEMAFORO LIBERO PER ATTIVATORE\n");
     //sezione critica inizio
         struct memCond *p;
         int idmem=shmget(KEY_MEMORIA_CONDIVISA, sizeof(p), 0666); //ottengo id della memoria condivisa
@@ -35,9 +35,11 @@ void scegliAtomoVittima()
         int indiceProcessoVittima = rand()%nAtomi;
         int pidVittima = vPid[indiceProcessoVittima];
         if(vPid[indiceProcessoVittima] != -1){
+            printf("SCISSIONE FATTA %d\n",pidVittima);
             kill(pidVittima, SIGUSR1);
-            
+            p->nAttivazioni++; 
         }
+        
 
     //sezione critica fine
     my_op . sem_num = 1;//scelgo il semaforo prioritario

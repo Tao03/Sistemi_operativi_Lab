@@ -51,9 +51,12 @@ int setMemoriaCondivisa(int nKids) // id = 32819
     * Una cosa da notare è che quando l'alimentatore aumenta la dimensione dell'array condiviso, riavviando il master porta 
     * ad un errore perchè il master prenderà la memoria condivisa ma con una dimensione vecchia e non quella recente siccome non è aggiornata
    */
-  datap->nAtomi = nKids;
-  datap->scorie = 0;
-  datap->eTot = ENERGY_DEMAND;
+    datap->nAtomi = nKids;
+    datap->scorie = 0;
+    datap->eTot = ENERGY_DEMAND;
+    datap->nScissioni = 0;
+    datap->nAttivazioni = 0;
+    datap->eConsumata = 0;
     int id_array_condiviso = shmget(KEY_ARRAY_CONDIVISO, 0, 0);
     //printf("Id array condiviso: %d\n",id_array_condiviso);
 
@@ -256,6 +259,11 @@ void stampa()
 
     printf("Numero di atomi: %d\n", datap->nAtomi);
     printf("Scorie totali: %d\n", datap->scorie);
+    printf("Energia totale: %d\n", datap->eTot);
+    printf("Numero di scissioni: %d\n", datap->nScissioni);
+    printf("Numero di attivazioni: %d\n", datap->nAttivazioni);
+    printf("Energia consumata: %d\n", datap->eConsumata);
+    
 
     /*int idArrayCondiviso = shmget(KEY_ARRAY_CONDIVISO, sizeof(int)*datap->nAtomi, IPC_CREAT | 0666);
 

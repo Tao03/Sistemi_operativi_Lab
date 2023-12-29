@@ -61,19 +61,30 @@ void main()
     creaAtomi(N_ATOMI_INIT, N_ATOMO_MAX, idMemoriaCondivisa);
     semop(idSemaforo, &my_op, 1);
 
+    /**
+     * CHANGELOG: il master non è più in sola lettura, ma deve aggiornare
+     * la memoria condivisa con l'energia prelevata, aggiunto controllo semaforo prioritario
+     */
+
+    my_op.sem_num = 1; /* only one semaphore in array of semaphores */
+    my_op.sem_flg = 0; /* no flag : default behavior */
+    my_op.sem_op = 1;  /* accessing the resource */
+    semop(idSemaforo, &my_op, 1);
+
     my_op.sem_num = 2; /* only one semaphore in array of semaphores */
     my_op.sem_flg = 0; /* no flag : default behavior */
     my_op.sem_op = 1;  /* accessing the resource */
     semop(idSemaforo, &my_op, 1);
 
-    /*
+    /**
      *Accesso alla memoria condivisa solo in lettura per la stampa, il master può accedervi in lettura
      *solo per stampare le statistiche, quindi non è necessario controllare i semafori.
+     * CHANGELOG: non vale più, il master deve accedere alla memoria condivisa per aggiornare l'energia consumata
      */
     int check = 0;
     while (check == 0)
     {
-
+        
         alarm(TIMER_PRELEVA);
         wait(NULL);
         if (flag == 0)
@@ -84,13 +95,13 @@ void main()
         my_op.sem_flg = 0; /* no flag : default behavior */
         my_op.sem_op = -1; /* accessing the resource */
         semop(idSemaforo, &my_op, 1);
-
         stampa();
         prelevaEnergia(30);
-
+        struct memCond *datap = shmat(idMemoriaCondivisa, NULL, 0);
+        datap->eConsumata = datap->eConsumata + 30;
         check = checkEnergia();
 
-        my_op.sem_op = 1; /* accessing the resource */
+        my_op.sem_op = 1; /* releasing the resource */
         semop(idSemaforo, &my_op, 1);
         flag = 0;
     }
@@ -111,7 +122,7 @@ void main()
 
     my_op.sem_num = 1; /* only one semaphore in array of semaphores */
     my_op.sem_flg = 0; /* no flag : default behavior */
-    my_op.sem_op = 1;  /* accessing the resource */
+    my_op.sem_op = 1;  /* releasing the resource */
     semop(idSemaforo, &my_op, 1);
     
     if (shmdt(array) == -1)

@@ -48,6 +48,12 @@ int main(int argc, char* argv[]){
         //l'atomo non fa nulla se non viene effettuata la scissione
         /*while(flag==0)
         */
+
+
+       /**
+        * PROBLEMA: abbiamo qualche problema nel gestire il segnale dopo la scissione,
+        * l'atomo non fa ritornare la kill all'alimentatore che rimane bloccato.
+       */
         wait(NULL);
         if(flag == 0){
             pause();

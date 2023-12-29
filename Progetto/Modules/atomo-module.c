@@ -125,6 +125,8 @@ void aggiungiAtomo(int pid, int energiaLiberata)
             perror("Errore nella chiusura dell'array condiviso nell'alimentatore: ");
             exit(EXIT_FAILURE);
         }
+        //da qui sono sicuro che la scissione sia avvenuta con successo
+        shared_struct->nScissioni++;
     }
 }
 
@@ -169,6 +171,8 @@ void scissione(int* nAtomico, int argc, char *argv[])
 
         // aggiung il pid del figlio nel vettore dei pid e aggiorno l'energia
         aggiungiAtomo(pid, energiaLiberata);
+
+        
 
         // sezione critica fine
 

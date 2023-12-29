@@ -2,8 +2,6 @@
 #include "Headers/risorse.h"
 
 
-int flag=0;
-int master=1;
 void handle_signal(int signal)
 {
     //flag=1;   
@@ -57,13 +55,14 @@ int main()
     //attende che il master dia il via alla sincronizzazione, da sostituire con segnale di sincronizzazione del master
     //printf("Programma sincronizzato\n");
     alarm(TIMER_ATTIVATORE);
-    while(master) //finchè il processo master non termina
+    while(1) //finchè il processo master non termina
     {
         //printf("PID attivatore: %d\n",getpid());
         alarm(TIMER_ATTIVATORE);
         pause();
-        //printf("SONO ATTIVATORE NEL CICLO\n");
+        printf("SONO ATTIVATORE NEL CICLO\n");
         scegliAtomoVittima();  
+        printf("ATOMO SCELTO\n");
         //controllo che il semaforo prioritario sia libero
         //accedo a memoria condivisa
     }
