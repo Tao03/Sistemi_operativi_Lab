@@ -53,16 +53,16 @@ int main()
         exit(EXIT_FAILURE);
     }
     //attende che il master dia il via alla sincronizzazione, da sostituire con segnale di sincronizzazione del master
-    //printf("Programma sincronizzato\n");
+    printf("PID ATTIVATORE:%d\n",getpid());
     alarm(TIMER_ATTIVATORE);
     while(1) //finchè il processo master non termina
     {
         //printf("PID attivatore: %d\n",getpid());
         alarm(TIMER_ATTIVATORE);
         pause();
-        printf("SONO ATTIVATORE NEL CICLO\n");
+        //printf("SONO ATTIVATORE NEL CICLO\n");
         scegliAtomoVittima();  
-        printf("ATOMO SCELTO\n");
+        //printf("ATOMO SCELTO\n");
         //controllo che il semaforo prioritario sia libero
         //accedo a memoria condivisa
     }

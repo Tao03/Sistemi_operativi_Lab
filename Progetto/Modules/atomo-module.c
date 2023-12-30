@@ -139,6 +139,7 @@ void scissione(int* nAtomico, int argc, char *argv[])
      * il numero atomico del figlio + numero atomico del padre = numero atomico del padre prima della scissione
      *  e per farlo basta assegnare al processo atomo nuovo un valore casuale tra [1,numero atomico del padre prima della scissione]
     */
+    srand(time(NULL));
     int nAtomicoFiglio = rand() % *nAtomico; // numero atomico del figlio
     *nAtomico -= nAtomicoFiglio;                  // aggiorno il numero atomico del padre
     printf("ATOMO %d: Numero atomico del padre: %d\n",getpid(),*nAtomico);

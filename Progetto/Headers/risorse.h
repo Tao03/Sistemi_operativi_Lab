@@ -28,6 +28,7 @@ extern struct memCond
         int nAttivazioni; // quante volte l'attivatore ha eseguito il suo compito
         int eConsumata; // energia consumata dal reattore
         int scorie; // scorie prodotte dal reattore
+        int pidInibitore; //pid del processo inibitore
 
     }dummy;// è solo per la creazione della memoria condivisa
 #endif

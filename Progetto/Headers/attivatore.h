@@ -8,3 +8,5 @@
 
 // il metodo consiste nel scegliere casualmente il processo atomo vittima
 void scegliAtomoVittima();
+
+void handler(int signal);
