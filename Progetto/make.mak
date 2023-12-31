@@ -1,4 +1,4 @@
-all: Master Attivatore Atomo Alimentatore
+all: Master Attivatore Atomo Alimentatore Allarme
 Master: Master.c Modules/master-module.c
 	gcc -c Modules/master-module.c
 	gcc Master.c master-module.o -o Master
@@ -14,6 +14,8 @@ Alimentatore: Alimentatore.c Modules/alimentatore-module.c
 	gcc -c Modules/alimentatore-module.c
 	gcc Alimentatore.c alimentatore-module.o -o Alimentatore
 
+Allarme: Alarm.c
+	gcc Alarm.c -o Alarm
 clean:
 	rm -f *.o Master Attivatore Atomo Alimentatore
 #gcc -c Modules/master-module.c

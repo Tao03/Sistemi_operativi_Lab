@@ -11,7 +11,7 @@
 #define N_ATOMICO_MAX 100 //numero atomico massimo che può avere un atomo
 
 #define TIMER_ALIMENTATORE 3
-#define TIMER_PRELEVA 10
+#define TIMER_PRELEVA 1
 #define TIMER_ATTIVATORE 2
 
 

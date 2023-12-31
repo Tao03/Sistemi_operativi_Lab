@@ -152,6 +152,8 @@ void scissione(int* nAtomico, int argc, char *argv[])
         // argv[1]=nAtomicoFiglio;
         execve("Atomo", argv, NULL); //<- esegue il figlio con il nuovo numero atomico
         perror("Errore: ");
+         /*DEVE INVIARE UN SEGNALE ALL'ATOMO PER TERMINARE, ricordarsi la quarta condizione di uscita*/
+         kill(SIGUSR2,strtol(argv[1],NULL,10));
         exit(1);
     }
     else // è il padre

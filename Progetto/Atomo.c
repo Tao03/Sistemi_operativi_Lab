@@ -16,6 +16,7 @@ void handler(int signal)
 int main(int argc, char* argv[]){
     int nAtomico = strtol(argv[0],NULL,10); //numero atomico
     printf("ATOMO %d: Sono un nuovo atomo e il mio numero atomico è: %d \n",getpid(),nAtomico);
+    printf("Il pid del processo master è: %ld\n",strtol(argv[1],NULL,10));
 
     int id = semget(KEY_SEMAFORO, 1, 0666); // ottengo id del semaforo
     struct sembuf my_op;

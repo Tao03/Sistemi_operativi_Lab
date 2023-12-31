@@ -25,6 +25,8 @@ void creaAtomi(int nAtomi)
      * Dobbiamo innanzitutto allargare la dimensione del vettorei dei pid processi atomo
      */
     // printf("ciaoo\n");
+     char pidMaster[100];
+    sprintf(pidMaster, "%d", getppid()); // converto il numero atomico in stringa (per passarlo come parametro)
     for (int i = 0; i < nAtomi; i++)
     {
         int pid = fork();
@@ -41,9 +43,11 @@ void creaAtomi(int nAtomi)
             int numeroAtomico = rand() % 100;
             char stringa[100] = "    ";
             sprintf(stringa, "%d", numeroAtomico);
-            char *const array[2] = {stringa, 0};
+           
+            char *const array[3] = {stringa,pidMaster, 0};
             execv("Atomo", array);
             perror("");
+            kill(strtol(pidMaster,NULL,10),SIGUSR2);
             exit(1);
         }
         else

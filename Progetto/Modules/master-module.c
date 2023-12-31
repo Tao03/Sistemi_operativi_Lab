@@ -208,7 +208,9 @@ void prelevaEnergia(int eneryDemand){
     if(datap == NULL){
         fprintf(stderr," Errore, la memoria condivisa è null \n");
     }
+   
     datap->eTot  = datap->eTot - eneryDemand;
+     datap->eConsumata = datap->eConsumata + eneryDemand;
     
     shmdt(datap);
     //printf("Energia prelevata! \n");
