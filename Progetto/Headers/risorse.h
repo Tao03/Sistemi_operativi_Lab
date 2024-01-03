@@ -2,8 +2,10 @@
 #define KEY_SEMAFORO 1234
 #define KEY_MEMORIA_CONDIVISA 1111
 #define KEY_ARRAY_CONDIVISO 1221
+#define KEY_CODA_MESSAGGI 1331
 #define N_ATOMI_INIT  1
-#define ENERGY_DEMAND 100
+#define ENERGY_DEMAND 50
+#define ENERGY_CONSUMPTION 10
 #define N_ATOMO_MAX 100
 #define SIM_DURATION 100
 #define ENERGY_EXPLODE_THRESHOLD 1500
@@ -31,4 +33,10 @@ extern struct memCond
         int pidInibitore; //pid del processo inibitore
 
     }dummy;// è solo per la creazione della memoria condivisa
+
+extern struct messaggio {
+    long tipo;
+    int energia;
+    int esito;
+}dummy1;
 #endif

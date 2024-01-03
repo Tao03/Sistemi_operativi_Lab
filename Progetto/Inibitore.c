@@ -4,33 +4,28 @@
 #include <signal.h>
 #include <sys/msg.h>
 #include <time.h>
+#include "Headers/risorse.h"
 
 #define MSG_TYPE 1
 
-// Struttura del messaggio
-struct message {
-    long mtype;
-    int energy;
-    int outcome;
-};
 
 // Variabile globale per la coda di messaggi
-int msgQueue;
+int coda;
 
 // Funzione per gestire il segnale SIGUSR2
 void handleSIGUSR2(int sig) {
-    // Genera un numero casuale tra 0 e 2
+    // Genera un numero casuale tra 0 e 1
     srand(time(NULL));
-    int outcome = rand() % 3;
+    int esito = rand() % 2;
 
     // Crea un messaggio con l'energia da sottrarre e l'esito
-    struct message msg;
-    msg.mtype = MSG_TYPE;
-    msg.energy = 10; // Esempio: sottrae 10 di energia
-    msg.outcome = outcome;
+    struct messaggio msg;
+    msg.tipo = MSG_TYPE;
+    msg.energia = 1; // Esempio: sottrae 1 di energia
+    msg.esito = esito;
 
     // Invia il messaggio alla coda di messaggi del processo che ha inviato il segnale
-    msgsnd(msgQueue, &msg, sizeof(struct message) - sizeof(long), 0);
+    msgsnd(coda, &msg, sizeof(struct messaggio) - sizeof(long), 0);
 }
 
 // Funzione per gestire il segnale di pausa
@@ -41,13 +36,25 @@ void handlePause(int sig) {
 
 int main() {
     // Crea la coda di messaggi
-    msgQueue = msgget(IPC_PRIVATE, IPC_CREAT | 0666);
+    coda = msgget(KEY_CODA_MESSAGGI, IPC_CREAT | 0666);
 
     // Registra la gestione del segnale SIGUSR2
-    signal(SIGUSR2, handleSIGUSR2);
+    struct sigaction sa;
+    sa.sa_handler = handleSIGUSR2;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    if (sigaction(SIGUSR2, &sa, NULL) == -1) {
+        fprintf(stderr,"errore inibitore SIGUSR2\n");
+        exit(1);
+    }
 
     // Registra la gestione del segnale di pausa
-    signal(SIGTSTP, handlePause);
+    sa.sa_handler = handlePause;
+    if (sigaction(SIGTSTP, &sa, NULL) == -1) {
+        fprintf(stderr,"errore inibitore SIGTSTP\n");
+        exit(1);
+    }
+
 
     // Esecuzione del programma
     while (1) {
@@ -55,7 +62,7 @@ int main() {
     }
 
     // Rimuovi la coda di messaggi alla fine dell'esecuzione
-    msgctl(msgQueue, IPC_RMID, NULL);
+    msgctl(coda, IPC_RMID, NULL);
 
     return 0;
 }

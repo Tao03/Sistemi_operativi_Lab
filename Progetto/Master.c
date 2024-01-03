@@ -6,6 +6,7 @@ int tempoScaduto = 0;
 int forkError = 0;
 int pidAlimentatore;
 int pidAttivatore;
+int pidInibitore;
 int pidAllarme;
 void handle_signal(int signal)
 {
@@ -19,7 +20,7 @@ void handle_fork_error(int signal)
 {
     forkError = 1;
 }
-void main()
+void main(int argc,char * argv[])
 {
     printf("Master avviato\n");
     void handle_signal(int signal); /* the handler */
@@ -56,6 +57,20 @@ void main()
         execv("Alimentatore", array);
         perror("");
         exit(1);
+    }
+
+    if (argc > 1 && strcmp(argv[1], "inibitore") == 0)
+    {
+        pidInibitore = fork();
+        if(pidInibitore == 0)
+        {
+            printf("Inibitore avviato\n");
+            char *const array[2] = {"0", 0};
+            execv("Inibitore", array);
+            perror("");
+            exit(1);
+        }
+        
     }
     
     printf("Attivatore avviato\nAlimentatore avviato\n");
@@ -126,7 +141,7 @@ void main()
             semop(idSemaforo, &my_op, 1);
 
             
-            prelevaEnergia(200);
+            prelevaEnergia(ENERGY_CONSUMPTION);
             stampa();
 
             struct memCond *datap = shmat(idMemoriaCondivisa, NULL, 0);
@@ -140,6 +155,7 @@ void main()
     }
     kill(pidAlimentatore, SIGKILL);
     kill(pidAttivatore, SIGHUP);
+    kill(pidInibitore, SIGKILL);
     my_op.sem_num = 1; /* only one semaphore in array of semaphores */
     my_op.sem_flg = 0; /* no flag : default behavior */
     my_op.sem_op = -1; /* accessing the resource */
