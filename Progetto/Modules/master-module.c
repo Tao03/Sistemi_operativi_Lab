@@ -244,6 +244,26 @@ int checkEnergia()
     return value;
 }
 
+void inserisciInibitore(int pidInibitore)
+{
+    int idMemoriaCondivisa = shmget(KEY_MEMORIA_CONDIVISA, sizeof(dummy), IPC_CREAT | 0666);
+    struct memCond *datap = shmat(idMemoriaCondivisa, NULL, 0);
+    if (datap == NULL)
+    {
+
+        fprintf(stderr, "Processo master in stampa shmget memoria condivisa");
+
+        exit(EXIT_FAILURE);
+    }
+    datap->pidInibitore = pidInibitore;
+    if (shmdt(datap) == -1)
+    {
+        fprintf(stderr, "Processo master in inserisciInibitore shmdt");
+        exit(EXIT_FAILURE);
+    }
+
+}
+
 void stampa()
 {
     printf("----------------------STATISTICHE----------------------\n");

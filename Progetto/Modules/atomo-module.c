@@ -173,6 +173,7 @@ void scissione(int* nAtomico, int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
     // Invia un segnale SIGUSR2 a pidInibitore
+    printf("ATOMO %d: Ho inviato un segnale SIGUSR2 a \n",getpid());
     kill(shared_struct->pidInibitore, SIGUSR2);
 
     //si collega alla coda di messaggi
@@ -198,7 +199,6 @@ void scissione(int* nAtomico, int argc, char *argv[])
         else // è il padre
         {
             // calcolo l'energia liberata dalla scissione
-            printf("ENERGIA MESSAGGIO: %d\n",msg.energia);
             int energiaLiberata = nAtomicoFiglio * (*nAtomico) - max(nAtomicoFiglio, *nAtomico) - msg.energia;
 
             // aggiung il pid del figlio nel vettore dei pid e aggiorno l'energia

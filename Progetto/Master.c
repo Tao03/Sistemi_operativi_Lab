@@ -59,19 +59,7 @@ void main(int argc,char * argv[])
         exit(1);
     }
 
-    if (argc > 1 && strcmp(argv[1], "inibitore") == 0)
-    {
-        pidInibitore = fork();
-        if(pidInibitore == 0)
-        {
-            printf("Inibitore avviato\n");
-            char *const array[2] = {"0", 0};
-            execv("Inibitore", array);
-            perror("");
-            exit(1);
-        }
-        
-    }
+    
     
     printf("Attivatore avviato\nAlimentatore avviato\n");
     struct sembuf my_op;
@@ -86,7 +74,29 @@ void main(int argc,char * argv[])
      */
     int idMemoriaCondivisa = setMemoriaCondivisa(N_ATOMI_INIT);
 
-
+    if (argc > 1 && strcmp(argv[1], "inibitore") == 0)
+    {
+        pidInibitore = fork();
+        if(pidInibitore == 0)
+        {
+            printf("Inibitore avviato\n");
+            char *const array[2] = {"0", 0};
+            execv("Inibitore", array);
+            perror("");
+            exit(1);
+        }
+        else if(pidInibitore == -1)
+        {
+            perror("Errore nella fork di inibitore");
+            exit(1);
+        }
+        else
+        {
+            inserisciInibitore(pidInibitore);
+            printf("INSERITO PID INIBITORE IN MEM\n");
+        }
+        
+    }
     /**
      * Creazione processi atomi iniziali
      */

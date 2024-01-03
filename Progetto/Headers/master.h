@@ -29,4 +29,6 @@ void insertAtomi(int indice, int pid, int idMemoriaCondivisa);
 
 int checkEnergia();
 
+void inserisciInibitore(int pidInibitore);
+
 void stampa();

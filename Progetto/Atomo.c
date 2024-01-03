@@ -51,10 +51,7 @@ int main(int argc, char* argv[]){
         */
 
 
-       /**
-        * PROBLEMA: abbiamo qualche problema nel gestire il segnale dopo la scissione,
-        * l'atomo non fa ritornare la kill all'alimentatore che rimane bloccato.
-       */
+       
         wait(NULL);
         if(flag == 0){
             pause();
