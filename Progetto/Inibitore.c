@@ -40,8 +40,11 @@ int main() {
 
     // Registra la gestione del segnale SIGUSR2
     struct sigaction sa;
+
     sa.sa_handler = handleSIGUSR2;
+
     sigemptyset(&sa.sa_mask);
+
     sa.sa_flags = 0;
     if (sigaction(SIGUSR2, &sa, NULL) == -1) {
         fprintf(stderr,"errore inibitore SIGUSR2\n");
@@ -49,6 +52,7 @@ int main() {
     }
 
     // Registra la gestione del segnale di pausa
+
     sa.sa_handler = handlePause;
     if (sigaction(SIGTSTP, &sa, NULL) == -1) {
         fprintf(stderr,"errore inibitore SIGTSTP\n");
@@ -58,7 +62,7 @@ int main() {
 
     // Esecuzione del programma
     while (1) {
-        // Esempio: esegui altre operazioni qui
+        pause();
     }
 
     // Rimuovi la coda di messaggi alla fine dell'esecuzione

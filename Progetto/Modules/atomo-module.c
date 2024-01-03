@@ -147,12 +147,14 @@ void scissione(int* nAtomico, int argc, char *argv[])
     int id = semget(KEY_SEMAFORO, 1, 0666); // ottengo id del semaforo
     struct sembuf my_op;
 
-    my_op.sem_num = 1; // scelgo il semaforo prioritario
+    
+
+    my_op.sem_num = 2; // scelgo il semaforo atomi
     my_op.sem_flg = 0;
     my_op.sem_op = -1;    // occupo il semaforo
     semop(id, &my_op, 1); // eseguo le operazioni
 
-    my_op.sem_num = 2; // scelgo il semaforo atomi
+    my_op.sem_num = 1; // scelgo il semaforo prioritario
     my_op.sem_flg = 0;
     my_op.sem_op = -1;    // occupo il semaforo
     semop(id, &my_op, 1); // eseguo le operazioni
@@ -221,11 +223,12 @@ void scissione(int* nAtomico, int argc, char *argv[])
     
 
     // sezione critica fine
-
+    my_op.sem_num = 1; // scelgo il semaforo prioritario
+    my_op.sem_flg = 0;
     my_op.sem_op = 1;     // rilascio il semaforo atomo
     semop(id, &my_op, 1); // eseguo le operazioni
 
-    my_op.sem_num = 1;    // scelgo il semaforo prioritario
+    my_op.sem_num = 2;    // scelgo il semaforo prioritario
     my_op.sem_op = 1;     // rilascio il semaforo prioritario
     semop(id, &my_op, 1); // eseguo le operazioni
 }
