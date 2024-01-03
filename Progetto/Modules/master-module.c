@@ -57,6 +57,7 @@ int setMemoriaCondivisa(int nKids) // id = 32819
     datap->nScissioni = 0;
     datap->nAttivazioni = 0;
     datap->eConsumata = 0;
+    datap->pidInibitore = 0;
     int id_array_condiviso = shmget(KEY_ARRAY_CONDIVISO, 0, 0);
     //printf("Id array condiviso: %d\n",id_array_condiviso);
 

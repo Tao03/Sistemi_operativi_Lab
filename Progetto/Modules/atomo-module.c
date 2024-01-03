@@ -172,17 +172,26 @@ void scissione(int* nAtomico, int argc, char *argv[])
         perror("Errore in shmat ");
         exit(EXIT_FAILURE);
     }
-    // Invia un segnale SIGUSR2 a pidInibitore
-    printf("ATOMO %d: Ho inviato un segnale SIGUSR2 a \n",getpid());
-    kill(shared_struct->pidInibitore, SIGUSR2);
+    int esito = 1;
+    int energia = 0;
+    if(shared_struct->pidInibitore != 0)
+    {
+        // Invia un segnale SIGUSR2 a pidInibitore
+        printf("ATOMO %d: Ho inviato un segnale SIGUSR2 a \n",getpid());
+        kill(shared_struct->pidInibitore, SIGUSR2);
 
-    //si collega alla coda di messaggi
-    struct messaggio msg;
-    int coda = msgget(KEY_CODA_MESSAGGI, IPC_CREAT | 0666);
-    // Aspetta un messaggio sulla coda di messaggi
-    msgrcv(coda, &msg, sizeof(msg) - sizeof(long), 0, 0);
+        //si collega alla coda di messaggi
 
-    if(msg.esito == 1)
+        struct messaggio msg;
+        int coda = msgget(KEY_CODA_MESSAGGI, IPC_CREAT | 0666);
+        // Aspetta un messaggio sulla coda di messaggi
+        msgrcv(coda, &msg, sizeof(msg) - sizeof(long), 0, 0);
+        esito = msg.esito;
+        energia = msg.energia;
+    }
+    
+
+    if(esito == 1)
     {
         printf("ESITO POSITIVO\n");
         int pid = fork();
@@ -199,7 +208,7 @@ void scissione(int* nAtomico, int argc, char *argv[])
         else // è il padre
         {
             // calcolo l'energia liberata dalla scissione
-            int energiaLiberata = nAtomicoFiglio * (*nAtomico) - max(nAtomicoFiglio, *nAtomico) - msg.energia;
+            int energiaLiberata = nAtomicoFiglio * (*nAtomico) - max(nAtomicoFiglio, *nAtomico) - energia;
 
             // aggiung il pid del figlio nel vettore dei pid e aggiorno l'energia
             aggiungiAtomo(pid, energiaLiberata);

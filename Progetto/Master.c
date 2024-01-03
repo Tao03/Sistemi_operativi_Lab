@@ -73,9 +73,9 @@ void main(int argc,char * argv[])
      *
      */
     int idMemoriaCondivisa = setMemoriaCondivisa(N_ATOMI_INIT);
-
     if (argc > 1 && strcmp(argv[1], "inibitore") == 0)
     {
+        
         pidInibitore = fork();
         if(pidInibitore == 0)
         {
@@ -93,7 +93,6 @@ void main(int argc,char * argv[])
         else
         {
             inserisciInibitore(pidInibitore);
-            printf("INSERITO PID INIBITORE IN MEM\n");
         }
         
     }
@@ -165,7 +164,10 @@ void main(int argc,char * argv[])
     }
     kill(pidAlimentatore, SIGKILL);
     kill(pidAttivatore, SIGHUP);
-    kill(pidInibitore, SIGKILL);
+    if (argc > 1 && strcmp(argv[1], "inibitore") == 0)
+    {
+        kill(pidInibitore, SIGKILL);
+    }
     my_op.sem_num = 1; /* only one semaphore in array of semaphores */
     my_op.sem_flg = 0; /* no flag : default behavior */
     my_op.sem_op = -1; /* accessing the resource */
