@@ -126,7 +126,7 @@ void main(int argc,char * argv[])
     pidAllarme = fork();
     if (pidAllarme == 0)
     {
-        char *const array[2] = {"10", 0};
+        char *const array[2] = {SIM_DURATION, 0};
         execv("Alarm", array);
         perror("");
         exit(1);
