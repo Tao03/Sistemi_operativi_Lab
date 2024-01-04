@@ -27,6 +27,20 @@ void creaAtomi(int nAtomi)
     // printf("ciaoo\n");
      char pidMaster[100];
     sprintf(pidMaster, "%d", getppid()); // converto il numero atomico in stringa (per passarlo come parametro)
+    struct sembuf my_op;
+    my_op.sem_num = 1; /* only one semaphore in array of semaphores */
+    my_op.sem_flg = 0; /* no flag : default behavior */
+    my_op.sem_op = -1; /* accessing the resource */
+    int idSemaforo = semget(KEY_SEMAFORO, 3, IPC_CREAT | 0666);
+    if (idSemaforo == -1)
+    {
+        perror("Errore sul semaforo: ");
+    }
+    if (semop(idSemaforo, &my_op, 1) == -1)
+    {
+        perror("Semaforo 2 semop");
+        exit(EXIT_FAILURE);
+    }
     for (int i = 0; i < nAtomi; i++)
     {
         int pid = fork();
@@ -57,6 +71,12 @@ void creaAtomi(int nAtomi)
             // printf("Processo atomo con pid %d aggiunto \n",pid);
         }
     }
+    my_op.sem_op = 1; /* releasing the resource */
+    if (semop(idSemaforo, &my_op, 1) == -1)
+    {
+        perror("Semaforo 0 semop");
+        exit(EXIT_FAILURE);
+    }
 }
 /**
  * Modifica il numero dei processi atomi in esecuzione
@@ -64,20 +84,7 @@ void creaAtomi(int nAtomi)
 void aggiungiProcessoAtomo(int pid)
 {
 
-    struct sembuf my_op;
-    my_op.sem_num = 1; /* only one semaphore in array of semaphores */
-    my_op.sem_flg = 0; /* no flag : default behavior */
-    my_op.sem_op = -1; /* accessing the resource */
-    int idSemaforo = semget(KEY_SEMAFORO, 3, IPC_CREAT | 0666);
-    if (idSemaforo == -1)
-    {
-        perror("Errore sul semaforo: ");
-    }
-    if (semop(idSemaforo, &my_op, 1) == -1)
-    {
-        perror("Semaforo 2 semop");
-        exit(EXIT_FAILURE);
-    }
+    
 
     // printf("CHECKPOINT: Il processo alimentatore ha fatto l'accesso alla memoria condivisa!\n");
     struct memCond *datap; /* shared data struct */
@@ -135,12 +142,7 @@ void aggiungiProcessoAtomo(int pid)
     add_int_to_shared_array(datap, pid);
 
     // shmdt(datap);
-    my_op.sem_op = 1; /* releasing the resource */
-    if (semop(idSemaforo, &my_op, 1) == -1)
-    {
-        perror("Semaforo 0 semop");
-        exit(EXIT_FAILURE);
-    }
+    
     if (shmdt(datap) == -1)
     {
         perror("Errore in alimentatore per chiudere la memoria condivisa ");

@@ -23,12 +23,11 @@ int main(int argc, char * argv[]){
     s1.sa_handler = handle_signal; /* set the handler */
     sigaction(SIGALRM, &s1, NULL); /* CASE 1: set new handler */
 
-    int tempo_desiderato = strtol(argv[0],NULL,10); // tempo in secondi
 
-    printf("Timer avviato per %d secondi.\n", tempo_desiderato);
+    printf("Timer avviato per %d secondi.\n", SIM_DURATION);
 
 
-    alarm(tempo_desiderato);
+    alarm(SIM_DURATION);
     pause();
     kill(getppid(),SIGUSR1);
 

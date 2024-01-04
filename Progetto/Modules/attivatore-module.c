@@ -45,11 +45,12 @@ void scegliAtomoVittima()
         int pidVittima = vPid[indiceProcessoVittima];
         if(vPid[indiceProcessoVittima] != -1){
             kill(pidVittima, SIGUSR1);
-            printf("SCISSIONE FATTA %d\n",pidVittima);
-            p->nAttivazioni++; 
+            printf("ATTIVAZIONE FATTA %d\n",pidVittima);
+            p->nAttivazioni = p->nAttivazioni + 1; 
+            p->nAttivazioniUltimoSecondo = p->nAttivazioniUltimoSecondo + 1;
         }
         shmdt(p);
-
+        
     //sezione critica fine
     my_op . sem_num = 1;//scelgo il semaforo prioritario
     my_op . sem_flg = 0;

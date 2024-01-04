@@ -10,7 +10,7 @@ void handle_sighup(int signal)
 {
     //master=0;
     //printf("Sono attivatore e ho ricevuto SIGHUP\n");
-    kill(getpid(),SIGKILL);
+    exit(EXIT_SUCCESS);
 }
 
 int main()
@@ -32,7 +32,7 @@ int main()
     */
     struct sigaction sa_hup;
     sa_hup.sa_handler = &handle_sighup;
-    if (sigaction(SIGHUP, &sa_hup, NULL) == -1) 
+    if (sigaction(SIGUSR1, &sa_hup, NULL) == -1) 
     {
         fprintf(stderr, "Failed setting SIGHUP handler\n");
     }

@@ -58,6 +58,10 @@ int setMemoriaCondivisa(int nKids) // id = 32819
     datap->nAttivazioni = 0;
     datap->eConsumata = 0;
     datap->pidInibitore = 0;
+    datap->scorieUtilmoSecondo = 0;
+    datap->nAttivazioniUltimoSecondo = 0;
+    datap->nScissioniUltimoSecondo = 0;
+    datap->eTotUltimoSecondo = 0;
     int id_array_condiviso = shmget(KEY_ARRAY_CONDIVISO, 0, 0);
     //printf("Id array condiviso: %d\n",id_array_condiviso);
 
@@ -211,7 +215,7 @@ void prelevaEnergia(int eneryDemand){
     }
    
     datap->eTot  = datap->eTot - eneryDemand;
-     datap->eConsumata = datap->eConsumata + eneryDemand;
+    datap->eConsumata = datap->eConsumata + eneryDemand;
     
     shmdt(datap);
     //printf("Energia prelevata! \n");
@@ -220,19 +224,28 @@ void prelevaEnergia(int eneryDemand){
 int checkEnergia()
 {
     int idMemoriaCondivisa = shmget(KEY_MEMORIA_CONDIVISA, sizeof(dummy), IPC_CREAT | 0666);
+    if(idMemoriaCondivisa == -1){
+        fprintf(stderr,"Errore nel ottenere la memoria condivisa\n");
+    }
     struct memCond *datap = shmat(idMemoriaCondivisa, NULL, 0);
     if (datap == NULL)
     {
 
-        fprintf(stderr, "Processo master in stampa shmget memoria condivisa");
+        fprintf(stderr, "Errore processo Master: collegamento memoria condivisa in linea %d",__LINE__);
 
         exit(EXIT_FAILURE);
     }
     int value = 0;
+    /**
+     * Nel caso l'energia totale fosse superiore alla soglia massima, il flag value viene asserito
+    */
     if (datap->eTot > ENERGY_EXPLODE_THRESHOLD)
     {
         value = 1;
     }
+    /**
+     * Nel caso l'energia totale è negativa, il flag value viene asserito per uscire
+    */
     if (datap->eTot < 0)
     {
         value = 2;
@@ -244,7 +257,9 @@ int checkEnergia()
     }
     return value;
 }
-
+/**
+ * Metodo che consiste nel inserire il pid dell'inibitore nella memoria condivisa
+*/
 void inserisciInibitore(int pidInibitore)
 {
     int idMemoriaCondivisa = shmget(KEY_MEMORIA_CONDIVISA, sizeof(dummy), IPC_CREAT | 0666);
@@ -252,7 +267,7 @@ void inserisciInibitore(int pidInibitore)
     if (datap == NULL)
     {
 
-        fprintf(stderr, "Processo master in stampa shmget memoria condivisa");
+        fprintf(stderr, "Processo master in stampa shmget memoria condivisa in linea %d",__LINE__);
 
         exit(EXIT_FAILURE);
     }
@@ -275,36 +290,23 @@ void stampa()
     if (datap == NULL)
     {
 
-        fprintf(stderr, "Processo master in stampa shmget memoria condivisa");
+        fprintf(stderr, "Processo master in stampa shmget memoria condivisa in linea %d",__LINE__);
 
         exit(EXIT_FAILURE);
     }
 
     printf("Numero di atomi: %d\n", datap->nAtomi);
-    printf("Scorie totali: %d\n", datap->scorie);
-    printf("Energia totale: %d\n", datap->eTot);
-    printf("Numero di scissioni: %d\n", datap->nScissioni);
-    printf("Numero di attivazioni: %d\n", datap->nAttivazioni);
+    printf("Scorie totali: %d, nell'ultimo secondo c'è stato un incremento di %d scorie\n", datap->scorie,datap->scorieUtilmoSecondo);
+    printf("Energia totale: %d, nell'ultimo secondo: %d\n", datap->eTot, datap->eTotUltimoSecondo);
+    printf("Numero di scissioni: %d, nell'ultimo secondo ci sono stati %d scissioni in più\n", datap->nScissioni,datap->nScissioniUltimoSecondo);
+    printf("Numero di attivazioni: %d, nell'ultimo secondo ci sono state %d attivazioni in più\n", datap->nAttivazioni,datap->nAttivazioniUltimoSecondo);
     printf("Energia consumata: %d\n", datap->eConsumata);
-    
 
-    /*int idArrayCondiviso = shmget(KEY_ARRAY_CONDIVISO, sizeof(int)*datap->nAtomi, IPC_CREAT | 0666);
-
-
-
-
-    if (idArrayCondiviso == -1) {
-        fprintf(stderr,"Processo master in stampa shmget array condiviso");
-        printf("Numero atomi %d\n",datap->nAtomi);
-        exit(EXIT_FAILURE);
-    }*/
-
-    // int id_array_condiviso = shmget(KEY_ARRAY_CONDIVISO,10,IPC_CREAT | 0666);
     int *array = shmat(datap->id_vettore_condiviso, NULL, 0);
 
     if (array == (int *)-1)
     {
-        fprintf(stderr, "Processo master in stampa shmat");
+        fprintf(stderr, "Errore processo Master: collegamento della memoria condivisa in linea %d",__LINE__);
         exit(EXIT_FAILURE);
     }
 
@@ -317,16 +319,20 @@ void stampa()
     printf("-------------------------------------------------------\n");
 
     // Non dimenticare di staccare l'area di memoria condivisa quando hai finito
-
+    /**
+     * Scollegamento dell'array condiviso 
+    */
     if (shmdt(array) == -1)
     {
-        fprintf(stderr, "Processo master in stampa shmdt");
+        fprintf(stderr, "Errore processo Master: scollegamento dell'array  condiviso in linea %d",__LINE__);
         exit(EXIT_FAILURE);
     }
-
+    /**
+     * Scollegamento della memoria condivisa 
+    */
     if (shmdt(datap) == -1)
     {
-        fprintf(stderr, "Processo master in stampa shmdt");
+        fprintf(stderr, "Errore processo Master: scollegamento della memoria condivisa in linea %d",__LINE__);
         exit(EXIT_FAILURE);
     }
 }

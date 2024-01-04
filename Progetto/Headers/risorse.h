@@ -31,6 +31,10 @@ extern struct memCond
         int eConsumata; // energia consumata dal reattore
         int scorie; // scorie prodotte dal reattore
         int pidInibitore; //pid del processo inibitore
+        int scorieUtilmoSecondo;
+        int nAttivazioniUltimoSecondo;
+        int nScissioniUltimoSecondo;
+        int eTotUltimoSecondo;
 
     }dummy;// è solo per la creazione della memoria condivisa
 

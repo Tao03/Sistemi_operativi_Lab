@@ -68,6 +68,7 @@ void aggiungiAtomo(int pid, int energiaLiberata)
             printf("shmdt\n");
             exit(EXIT_FAILURE);
         }
+        shared_struct->nScissioni = shared_struct->nScissioni + 1;
     }
     else
     {
@@ -127,7 +128,7 @@ void aggiungiAtomo(int pid, int energiaLiberata)
             exit(EXIT_FAILURE);
         }
         //da qui sono sicuro che la scissione sia avvenuta con successo
-        shared_struct->nScissioni++;
+        shared_struct->nScissioni = shared_struct->nScissioni + 1;
     }
 }
 
@@ -179,7 +180,7 @@ void scissione(int* nAtomico, int argc, char *argv[])
     if(shared_struct->pidInibitore != 0)
     {
         // Invia un segnale SIGUSR2 a pidInibitore
-        printf("ATOMO %d: Ho inviato un segnale SIGUSR2 a \n",getpid());
+        printf("ATOMO %d: Ho inviato un segnale SIGUSR2 a %d\n",getpid());
         kill(shared_struct->pidInibitore, SIGUSR2);
 
         //si collega alla coda di messaggi
@@ -215,6 +216,7 @@ void scissione(int* nAtomico, int argc, char *argv[])
             // aggiung il pid del figlio nel vettore dei pid e aggiorno l'energia
             aggiungiAtomo(pid, energiaLiberata);
         }
+        printf("SCISSIONE ESEGUITA\n");
     }
     else
     {
