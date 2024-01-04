@@ -1,6 +1,6 @@
 //metodo per generare figli(processi atomo)
 #include "risorse.h"
-void creaAtomi(int nAtomi);
+void creaAtomi();
 void aggiungiProcessoAtomo(int pid);
 int check(int * array, int size);
 void add_int_to_shared_array(struct memCond* shared_struct, int pid);

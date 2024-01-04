@@ -15,7 +15,8 @@
         "types.h": "c",
         "string.h": "c",
         "msg.h": "c",
-        "unistd.h": "c"
+        "unistd.h": "c",
+        "time.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

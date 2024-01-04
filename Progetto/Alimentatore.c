@@ -18,18 +18,11 @@
 
 //int sigaction ( int signum , const struct sigaction * act , struct sigaction * oldact );
 int nKids;
-void creaAtomi(int nkids);
 int flag=0;
 int exitSignal = 0;
 
 int main(int argc, char* argv[])
 {
-    /*
-        Per ora mettiamo una costante come numero di processi atomo
-        che il processo alimentatore deve generare ma il processo master passerà 
-        il numero in argv[0]
-    */
-    nKids = strtol(argv[0],NULL,10);
 
     void handle_signal(int signal); /* the handler */
     void handle_exit(int signal); /* the handler */
@@ -55,7 +48,7 @@ int main(int argc, char* argv[])
     }
     my_op . sem_op = 1; /* accessing the resource */
     if(semop ( idSemaforo , & my_op , 1) == -1){
-        perror("Errore sul semaforo: ");
+        perror("Errore sul   semaforo: ");
     } 
 
 
@@ -75,7 +68,7 @@ int main(int argc, char* argv[])
         if(exitSignal == 1){
             exit(EXIT_SUCCESS);
         }
-        creaAtomi(nKids);
+        creaAtomi();
         flag = 0;
         
         

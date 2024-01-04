@@ -18,7 +18,7 @@
 #include "../Headers/alimentatore.h"
 #include "../Headers/risorse.h"
 int id = 0;
-void creaAtomi(int nAtomi)
+void creaAtomi()
 {
 
     /**
@@ -41,8 +41,9 @@ void creaAtomi(int nAtomi)
         perror("Semaforo 2 semop");
         exit(EXIT_FAILURE);
     }
-    for (int i = 0; i < nAtomi; i++)
+    for (int i = 0; i < N_NUOVI_ATOMI; i++)
     {
+        printf("ATOMO AGGIUNTO\n");
         int pid = fork();
         if (pid == 0)
         {
@@ -66,9 +67,7 @@ void creaAtomi(int nAtomi)
         }
         else
         {
-            // printf("CASSA\n");
             aggiungiProcessoAtomo(pid);
-            // printf("Processo atomo con pid %d aggiunto \n",pid);
         }
     }
     my_op.sem_op = 1; /* releasing the resource */
@@ -101,81 +100,19 @@ void aggiungiProcessoAtomo(int pid)
         exit(EXIT_FAILURE);
     }
 
-    // datap->nAtomi = datap->nAtomi + 1;
-    // printf("CHECKPOINT: il numero di atomi è stato incrementato a %d\n",datap->nAtomi);
-    /**
-     * Ri-allocamento del vettore con dimensione n + 1 dove n è la dimensione prima dell'esecuzione del metodo
-     */
-    /*int* array = datap->vPid;
-    if(array == NULL){
-         printf("Errore in memoria condivisa\n");
-         exit(EXIT_FAILURE);
-    }
-    printf("Prima di realloc, array: %p\n", (void *)array);
-
-
-     /*
-     array =  (int*) realloc( (void *)array,sizeof(int)*(10));
-     */
-
-    /*printf("Prima di realloc, array: %p\n", (void *)array);
-    if ((void *)array == NULL) {
-        printf("Errore di riallocazione di memoria\n");
-        exit(EXIT_FAILURE);
-    }
-    printf("CHECKPOINT: Numero atomi nuovo è: : %d\n",datap->nAtomi);*/
-    /**
-     * Aggiunta del pid nel vettore
-     */
-    /**
-     * DA QUELLO CHE HO CAPITO, facendo array[0] = pid mi da errore MA FORSE anche realloc()
-
-     //array[0] = pid;
-     datap->vPid[0]= pid;
-
-     printf("CHECKPOINT: Atomo inserito nel vettore : %d\n",datap->nAtomi);
-     if (shmdt(datap) == -1) {
-         perror("shmdt");
-         exit(EXIT_FAILURE);
-     } */
 
     add_int_to_shared_array(datap, pid);
-
-    // shmdt(datap);
     
     if (shmdt(datap) == -1)
     {
         perror("Errore in alimentatore per chiudere la memoria condivisa ");
         exit(EXIT_FAILURE);
     }
-    // printf("CHECKPOINT: Scollegamento dalla memoria!\n");
 }
-/**
- * E' Presente un problema:
- *      Siccome l'array è stato inizializzato dal master, all'interno della struct mettiamo soltanto il puntatore
- *      ma il vettore effettivo è all'interno dell'area privata del processo master e quindi l'alimentatore avendo il
- *      puntatore all'array non riesce ad accedere.
- */
+
 
 void add_int_to_shared_array(struct memCond *shared_struct, int pid)
 {
-    // key_t key = ftok("Modules", 1);
-    // Calcola la dimensione del nuovo vettore
-    // int new_size = (shared_struct->nAtomi + 1) * sizeof(int);
-
-    // Crea un nuovo segmento di memoria condivisa per il vettore
-
-    // printf("NUMERO ATOMI: %d\n",shared_struct->nAtomi);
-    // printf("Numero di bytes: %ld\n",shared_struct->nAtomi * sizeof(int));
-    /*int old_shm_id = shmget(KEY_ARRAY_CONDIVISO,(sizeof(int) * shared_struct->nAtomi), IPC_CREAT | 0666);
-
-
-
-    if (old_shm_id == -1) {
-        //printf("Errore nella creazione della nuova memoria condivisa ");
-        perror("Error: \n");
-        exit(EXIT_FAILURE);
-    }*/
     int old_shm_id = shared_struct->id_vettore_condiviso;
 
     // Recupera array condiviso:

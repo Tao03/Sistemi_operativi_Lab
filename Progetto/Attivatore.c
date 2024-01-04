@@ -13,7 +13,7 @@ void handle_sighup(int signal)
     exit(EXIT_SUCCESS);
 }
 
-int main()
+int main(int argc, char* argv[])
 {
     /**
      * Inizializzazione handler del timer
@@ -23,7 +23,7 @@ int main()
     sa.sa_handler=&handle_signal;
     if(sigaction(SIGALRM, &sa, NULL) == -1)
     {
-        fprintf(stderr, "Failed setting handler\n");
+        fprintf(stderr, "Failed  setting handler\n");
     }
 
 

@@ -1,6 +1,5 @@
 #include "Headers/master.h"
 #include "Headers/risorse.h"
-void terminazione(int idSemaforo,int idMemoriaCondivisa,int check, char* argv[],int argc);
 int flag = 0;
 int tempoScaduto = 0;
 int forkError = 0;
@@ -55,16 +54,16 @@ void main(int argc,char * argv[])
     {
         char *const dummy[2] = {"0", 0};
         execv("Attivatore", dummy);
-        perror("Errore ");
+        fprintf(stderr, "Errore nel creare il processo attivatore, linea %d",__LINE__);
         exit(1);
     }
     pidAlimentatore = fork();
     if (pidAlimentatore == 0)
     {
         
-        char *const array[3] = {"2", 0};
+        char *const array[1] = { 0};
         execv("Alimentatore", array);
-        perror("");
+        fprintf(stderr, "Errore nel creare il processo alimentatore, linea %d",__LINE__);
         exit(1);
     }
 
@@ -94,7 +93,7 @@ void main(int argc,char * argv[])
             printf("Inibitore avviato\n");
             char *const array[2] = {"0", 0};
             execv("Inibitore", array);
-            perror("");
+            fprintf(stderr, "Errore nel creare il processo inibitore, linea %d",__LINE__);
             exit(1);
         }
         else if(pidInibitore == -1)
@@ -117,10 +116,7 @@ void main(int argc,char * argv[])
     /**
      * Serve per dare il via a tutti i processi della simulazione
     */
-    my_op.sem_num = 0; /* only one semaphore in array of semaphores */
-    my_op.sem_flg = 0; /* no flag : default behavior */
-    my_op.sem_op = 1;  /* accessing the resource */
-    semop(idSemaforo, &my_op, 1);
+    P(0);
 
 
     
@@ -133,7 +129,7 @@ void main(int argc,char * argv[])
     {
         char *const array[1] = {0};
         execv("Alarm", array);
-        perror("");
+        fprintf(stderr, "Errore nel creare il processo alarm, linea %d",__LINE__);
         exit(1);
     }
 
@@ -170,10 +166,7 @@ void main(int argc,char * argv[])
             /**
              * Prima di entrare in sezione critica
             */
-            my_op.sem_num = 1; /* only one semaphore in array of semaphores */
-            my_op.sem_flg = 0; /* no flag : default behavior */
-            my_op.sem_op = -1; /* accessing the resource */
-            semop(idSemaforo, &my_op, 1);
+            V(1);
 
             //SEZIONE CRITICA: INIZIO
 
@@ -190,8 +183,7 @@ void main(int argc,char * argv[])
             /*
             *Rilascio del semaforo
             */
-            my_op.sem_op = 1; /* releasing the resource */
-            semop(idSemaforo, &my_op, 1);
+            P(1);
             /**
              *Il flag viene rimesso a 0 altrimenti riesegue la porzione di codice senza aspettare il segnale
             */
@@ -199,86 +191,9 @@ void main(int argc,char * argv[])
         }
         
     }
-
-terminazione(idSemaforo,idMemoriaCondivisa,check,argv,argc);
+terminazione(idSemaforo,idMemoriaCondivisa,check,tempoScaduto,forkError,pidAlimentatore,  pidAttivatore, pidInibitore, argv, argc);
 
 
     
     
-}
-void terminazione(int idSemaforo,int idMemoriaCondivisa,int check, char* argv[],int argc){
-    struct sembuf my_op;
-    kill(pidAlimentatore, SIGKILL);
-    waitpid(pidAlimentatore,NULL,0);
-    printf("Il processo  alimentatore ha terminato correttamente\n");
-    kill(pidAttivatore, SIGKILL);
-    waitpid(pidAttivatore,NULL,0);
-    printf("Il processo attivatore ha terminato correttamente\n");
-    if (argc > 1 && strcmp(argv[1], "inibitore") == 0)
-    {
-        kill(pidInibitore, SIGKILL);
-    }
-    my_op.sem_num = 1; /* only one semaphore in array of semaphores */
-    my_op.sem_flg = 0; /* no flag : default behavior */
-    my_op.sem_op = -1; /* accessing the resource */
-    semop(idSemaforo, &my_op, 1);
-    struct memCond *datap = shmat(idMemoriaCondivisa, NULL, 0);
-    int idArrayCondiviso = datap->id_vettore_condiviso;
-    int *array = shmat(idArrayCondiviso, NULL, 0);
-    for (int i = 0; i < datap->nAtomi; i++)
-    {
-       if(array[i]!=-1){
-        kill(array[i],SIGKILL);
-        //wait(NULL);
-       }
-        
-        printf("Processo atomo con pid %d terminato correttamente\n",array[i]);
-    }
-
-    my_op.sem_num = 1; /* only one semaphore in array of semaphores */
-    my_op.sem_flg = 0; /* no flag : default behavior */
-    my_op.sem_op = 1;  /* releasing the resource */
-    semop(idSemaforo, &my_op, 1);
-
-    if (shmdt(array) == -1)
-    {
-        fprintf(stderr, "Processo master in stampa shmdt");
-        exit(EXIT_FAILURE);
-    }
-
-    if (shmdt(datap) == -1)
-    {
-        fprintf(stderr, "Processo master in stampa shmdt");
-        exit(EXIT_FAILURE);
-    }
-    if (shmctl(idMemoriaCondivisa, IPC_RMID, NULL) == -1)
-    {
-        perror("shmctl");
-        exit(EXIT_FAILURE);
-    }
-    if (shmctl(idArrayCondiviso, IPC_RMID, NULL) == -1)
-    {
-        perror("shmctl");
-        exit(EXIT_FAILURE);
-    }
-    if (semctl(idSemaforo, 0, IPC_RMID) == -1)
-    {
-        perror("shmctl");
-        exit(EXIT_FAILURE);
-    }
-    if (check == 1)
-    {
-        printf("La simulazione è terminata per il seguente motivo: l'energia totale ha superato il limite massimo\n");
-    }
-    if (check == 2)
-    {
-        printf("La simulazione è terminata per il seguente motivo: l'energia totale non è sufficiente per i prossimi prelievi di energia\n");
-    }
-    if (tempoScaduto == 1)
-    {
-        printf("La simulazione è terminata per il seguente motivo: il tempo dedicato alla simulazione è finito\n");
-    }
-    if(forkError == 1){
-        printf("La simulazione è terminata per il seguente motivo: errore nelle fork dei processi\n");
-    }
 }
