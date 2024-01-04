@@ -80,7 +80,7 @@ void main(int argc,char * argv[])
      * Inizializzazione della memoria condivisa
      *
      */
-    int idMemoriaCondivisa = setMemoriaCondivisa(N_ATOMI_INIT);
+    int idMemoriaCondivisa = setMemoriaCondivisa();
 
     /**
      * Creazione del processo inibitore
@@ -111,7 +111,7 @@ void main(int argc,char * argv[])
     /**
      * Creazione primi N_ATOMI_INIT processi atomi iniziali
      */
-    creaAtomi(N_ATOMI_INIT, N_ATOMO_MAX, idMemoriaCondivisa);
+    creaAtomi(N_ATOMI_INIT, idMemoriaCondivisa);
     struct sembuf my_op;
 
     /**
@@ -210,7 +210,7 @@ void terminazione(int idSemaforo,int idMemoriaCondivisa,int check, char* argv[],
     struct sembuf my_op;
     kill(pidAlimentatore, SIGKILL);
     waitpid(pidAlimentatore,NULL,0);
-    printf("Il processo alimentatore ha terminato correttamente\n");
+    printf("Il processo  alimentatore ha terminato correttamente\n");
     kill(pidAttivatore, SIGKILL);
     waitpid(pidAttivatore,NULL,0);
     printf("Il processo attivatore ha terminato correttamente\n");

@@ -14,7 +14,8 @@
         "attivatore.h": "c",
         "types.h": "c",
         "string.h": "c",
-        "msg.h": "c"
+        "msg.h": "c",
+        "unistd.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

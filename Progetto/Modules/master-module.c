@@ -8,10 +8,9 @@ int setSemaforo()
     if (id != -1) // Se l'ID non è -1, il semaforo esiste
     {
         // Rimuovi il semaforo esistente
-        printf("Semaforo esistente trovato, rimozione...\n");
         if (semctl(id, 0, IPC_RMID) == -1)
         {
-            perror("Errore nella rimozione del semaforo: ");
+            fprintf(stderr,"Errore nella rimozione dell'array di semafori\n, linea %d\n",__LINE__);
             exit(EXIT_FAILURE);
         }
     }
@@ -20,7 +19,7 @@ int setSemaforo()
     id = semget(KEY_SEMAFORO, 3, IPC_CREAT | IPC_EXCL | 0666);
     if (id == -1)
     {
-        perror("Errore nella creazione del semaforo: ");
+        fprintf(stderr,"Errore nella creazione dell'array di semafori\n, linea %d\n",__LINE__);
         exit(EXIT_FAILURE);
     }
 
@@ -33,7 +32,7 @@ int setSemaforo()
     return id;
 }
 
-int setMemoriaCondivisa(int nKids) // id = 32819
+int setMemoriaCondivisa() // id = 32819
 {
     //printf("Dimensione del dummy: %ld\n",sizeof(dummy));
     int idMemoriaCondivisa = shmget(KEY_MEMORIA_CONDIVISA, sizeof(dummy), IPC_CREAT | 0666);
@@ -41,7 +40,7 @@ int setMemoriaCondivisa(int nKids) // id = 32819
      * Si crea un array di interi condiviso
     */
     if(idMemoriaCondivisa == -1){
-        perror("Errore nella creazione della memoria condivisa: ");
+        fprintf(stderr,"Errore nella creazione della memoria condivisa, linea: %d\n ",__LINE__);
         exit(EXIT_FAILURE);
     }
     struct memCond * datap ; /* shared data struct */
@@ -51,7 +50,7 @@ int setMemoriaCondivisa(int nKids) // id = 32819
     * Una cosa da notare è che quando l'alimentatore aumenta la dimensione dell'array condiviso, riavviando il master porta 
     * ad un errore perchè il master prenderà la memoria condivisa ma con una dimensione vecchia e non quella recente siccome non è aggiornata
    */
-    datap->nAtomi = nKids;
+    datap->nAtomi = N_ATOMI_INIT;
     datap->scorie = 0;
     datap->eTot = ENERGY_DEMAND;
     datap->nScissioni = 0;
@@ -69,7 +68,7 @@ int setMemoriaCondivisa(int nKids) // id = 32819
    
     if (id_array_condiviso == -1)
     {
-        perror("Errore nella creazione dell'array condiviso: ");
+        fprintf(stderr,"Errore nella creazione delL'array condiviso, linea: %d\n ",__LINE__);
         exit(EXIT_FAILURE);
     }
     /**
@@ -95,20 +94,18 @@ int setMemoriaCondivisa(int nKids) // id = 32819
     int statusArray = shmdt (new_array);
 
     if(status == -1){
-        perror("Errore nello scollegamento della memoria condivisa: ");
+        fprintf(stderr,"Errore nello scollegamento della memoria condivisa, linea: %d\n ",__LINE__);
     }
 
     if(statusArray == -1){
-        perror("Errore nello scollegamento dell'array condivisa: \n");
+        fprintf(stderr,"Errore nello scollegamento dell'array condiviso, linea: %d\n ",__LINE__);
     }
-
-    printf("CHECKPOINT: MEMORIA CONDIVISA CREATA CON SUCCESSO!\n");
     return idMemoriaCondivisa;
 }
 
-void creaAtomi(int nAtomi, int nAtomoMax, int idMemoriaCondivisa)
+void creaAtomi(int nAtomi,  int idMemoriaCondivisa)
 {
-    for (int i = 0; i < nAtomi; i++)
+    for (int i = 0; i < N_ATOMI_INIT; i++)
     {
 
 
@@ -122,29 +119,27 @@ void creaAtomi(int nAtomi, int nAtomoMax, int idMemoriaCondivisa)
 
             //printf("CHECKPOINT: processo atomo creato con pid: %d\n",getpid());
             srand(getpid());
-            int numeroAtomico = rand()%nAtomoMax;
+            int numeroAtomico = rand()%N_ATOMICO_MAX;
             char stringa[100];
             sprintf(stringa, "%d", numeroAtomico);
-            char  * const array[2] = {stringa,0};
+            char ppid[100];
+            sprintf(ppid, "%d", getppid());
+            char  * const array[3] = {stringa,ppid,0};
             execv("Atomo",array);
             perror("");
             exit(EXIT_SUCCESS);
 
 
             
-        }else{
-            /**
-             * Porzione di codice che consiste nel aggiungere il pid degli atomi in memoria condivisa
-            */
-           //printf("Passo il pid [%d]\n",pid);
-           insertAtomi(i,pid,idMemoriaCondivisa);
+        }else if(pid == -1){
+            kill(getpid(),SIGUSR2);
+            fprintf(stderr,"Errore nel creare un processo attraverso la fork, linea %d\n",__LINE__);
+            exit(EXIT_SUCCESS);
         }
-        
+        else{
+             insertAtomi(i,pid,idMemoriaCondivisa);
+        }
     }
-    //printf("CHECKPOINT: la creazione degli atomi è andata a buon fine!\n");
-    /**
-     * Fino a qui, il codice funziona correttamente
-    */
 
     
 }
@@ -159,7 +154,7 @@ void insertAtomi(int indice, int pid, int idMemoriaCondivisa){
     struct memCond * datap ; /* shared data struct */
     datap = shmat ( idMemoriaCondivisa, NULL ,0) ;
     if (datap == (struct memCond *)(-1)) {
-        perror("shmat");
+        fprintf(stderr,"Errore nel ottenere dla memoria condivisa, linea: %d\n ",__LINE__);
         exit(EXIT_FAILURE);
     }
     //datap->nAtomi = datap->nAtomi + 1;
@@ -170,7 +165,7 @@ void insertAtomi(int indice, int pid, int idMemoriaCondivisa){
     */
     int * arrayPid = shmat(datap->id_vettore_condiviso,NULL,0);
     if(arrayPid == NULL){
-        perror("Error: ");
+        fprintf(stderr,"Errore nel ottenere la memoria condivisa, linea: %d\n ",__LINE__);
         exit(EXIT_FAILURE);
     }
 
@@ -180,11 +175,11 @@ void insertAtomi(int indice, int pid, int idMemoriaCondivisa){
     int status = shmdt (arrayPid);
      
     if(status == -1){
-        perror("Error: ");
+        fprintf(stderr,"Errore nel scollegarsi dal vettore condiviso, linea: %d\n ",__LINE__);
     }
     status = shmdt(datap);
     if(status == -1){
-        perror("Erro: ");
+        fprintf(stderr,"Errore nel scollegarsi dalla memoria condivisa, linea: %d\n ",__LINE__);
     }
     //printf("Numero atomi: %d\n",datap->nAtomi);
     /**
@@ -207,25 +202,24 @@ void prelevaEnergia(int eneryDemand){
 
     int idMemoriaCondivisa = shmget(KEY_MEMORIA_CONDIVISA,sizeof(dummy),IPC_CREAT|0666);
     if(idMemoriaCondivisa == -1){
-        fprintf( stderr," Errore nel collegamento della memoria condivisa\n");
+        fprintf( stderr," Errore nel ottenere l'identificatore della memoria condivisa, linea %d \n",__LINE__);
     }
     struct memCond * datap = shmat(idMemoriaCondivisa,NULL,0);
     if(datap == NULL){
-        fprintf(stderr," Errore, la memoria condivisa è null \n");
+        fprintf(stderr,"Errore processo Master: collegamento memoria condivisa in linea %d",__LINE__);
     }
    
     datap->eTot  = datap->eTot - eneryDemand;
     datap->eConsumata = datap->eConsumata + eneryDemand;
     
     shmdt(datap);
-    //printf("Energia prelevata! \n");
 }
 
 int checkEnergia()
 {
     int idMemoriaCondivisa = shmget(KEY_MEMORIA_CONDIVISA, sizeof(dummy), IPC_CREAT | 0666);
     if(idMemoriaCondivisa == -1){
-        fprintf(stderr,"Errore nel ottenere la memoria condivisa\n");
+        fprintf(stderr,"Errore nel ottenere la memoria condivisa, linea %d \n",__LINE__);
     }
     struct memCond *datap = shmat(idMemoriaCondivisa, NULL, 0);
     if (datap == NULL)
@@ -252,7 +246,7 @@ int checkEnergia()
     }
     if (shmdt(datap) == -1)
     {
-        fprintf(stderr, "Processo master in checkEnergia shmdt");
+        fprintf(stderr, "Errore processo Master: scollegamento memoria condivisa in linea %d",__LINE__);
         exit(EXIT_FAILURE);
     }
     return value;
@@ -274,7 +268,7 @@ void inserisciInibitore(int pidInibitore)
     datap->pidInibitore = pidInibitore;
     if (shmdt(datap) == -1)
     {
-        fprintf(stderr, "Processo master in inserisciInibitore shmdt");
+        fprintf(stderr, "Errore processo Master: scollegamento memoria condivisa in linea %d",__LINE__);
         exit(EXIT_FAILURE);
     }
 
@@ -301,19 +295,16 @@ void stampa()
     printf("Numero di scissioni: %d, nell'ultimo secondo ci sono stati %d scissioni in più\n", datap->nScissioni,datap->nScissioniUltimoSecondo);
     printf("Numero di attivazioni: %d, nell'ultimo secondo ci sono state %d attivazioni in più\n", datap->nAttivazioni,datap->nAttivazioniUltimoSecondo);
     printf("Energia consumata: %d\n", datap->eConsumata);
-
+    datap->scorieUtilmoSecondo = 0;
+    datap->eTotUltimoSecondo = 0;
+    datap->nScissioniUltimoSecondo = 0;
+    datap->nAttivazioniUltimoSecondo = 0;
     int *array = shmat(datap->id_vettore_condiviso, NULL, 0);
 
     if (array == (int *)-1)
     {
         fprintf(stderr, "Errore processo Master: collegamento della memoria condivisa in linea %d",__LINE__);
         exit(EXIT_FAILURE);
-    }
-
-    for (int i = 0; i < datap->nAtomi; i++)
-    {
-
-        printf("Pid del processo atomo: [%d]\n", array[i]);
     }
     printf("ENERGIA TOTALE: %d\n", datap->eTot);
     printf("-------------------------------------------------------\n");

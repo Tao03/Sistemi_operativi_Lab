@@ -21,7 +21,7 @@ void scegliAtomoVittima()
     my_op . sem_flg = 0;
     my_op . sem_op = -1;//occupo il semaforo
     semop ( idsem, & my_op , 1) ;//eseguo le operazioni
-    //printf("SEMAFORO LIBERO PER ATTIVATORE\n");
+    printf("SEMAFORO LIBERO PER ATTIVATORE\n");
     struct sigaction sa;
     sigset_t my_mask;
     sa.sa_handler=&handler;
@@ -44,7 +44,7 @@ void scegliAtomoVittima()
         int indiceProcessoVittima = rand()%nAtomi;
         int pidVittima = vPid[indiceProcessoVittima];
         if(vPid[indiceProcessoVittima] != -1){
-            kill(pidVittima, SIGUSR1);
+            kill(pidVittima, SIGUSR2);
             printf("ATTIVAZIONE FATTA %d\n",pidVittima);
             p->nAttivazioni = p->nAttivazioni + 1; 
             p->nAttivazioniUltimoSecondo = p->nAttivazioniUltimoSecondo + 1;

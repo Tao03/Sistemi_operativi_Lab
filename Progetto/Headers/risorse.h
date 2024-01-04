@@ -3,16 +3,16 @@
 #define KEY_MEMORIA_CONDIVISA 1111
 #define KEY_ARRAY_CONDIVISO 1221
 #define KEY_CODA_MESSAGGI 1331
-#define N_ATOMI_INIT  1
-#define ENERGY_DEMAND 50
-#define ENERGY_CONSUMPTION 10
+#define N_ATOMI_INIT  800
+#define ENERGY_DEMAND 2000
+#define ENERGY_CONSUMPTION 100
 #define N_ATOMO_MAX 100
 #define SIM_DURATION 100
-#define ENERGY_EXPLODE_THRESHOLD 1500
+#define ENERGY_EXPLODE_THRESHOLD 10000
 #define N_ATOMICO_MIN 25 //numero atomico minimo per fare la scissione
 #define N_ATOMICO_MAX 100 //numero atomico massimo che può avere un atomo
 
-#define TIMER_ALIMENTATORE 3
+#define TIMER_ALIMENTATORE 1
 #define TIMER_PRELEVA 1
 #define TIMER_ATTIVATORE 2
 

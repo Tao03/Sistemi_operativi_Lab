@@ -69,6 +69,7 @@ void aggiungiAtomo(int pid, int energiaLiberata)
             exit(EXIT_FAILURE);
         }
         shared_struct->nScissioni = shared_struct->nScissioni + 1;
+        shared_struct->nScissioniUltimoSecondo = shared_struct->nScissioniUltimoSecondo + 1;
     }
     else
     {
@@ -129,6 +130,7 @@ void aggiungiAtomo(int pid, int energiaLiberata)
         }
         //da qui sono sicuro che la scissione sia avvenuta con successo
         shared_struct->nScissioni = shared_struct->nScissioni + 1;
+        shared_struct->nScissioniUltimoSecondo = shared_struct->nScissioniUltimoSecondo + 1;
     }
 }
 
@@ -150,18 +152,18 @@ void scissione(int* nAtomico, int argc, char *argv[])
 
     
 
-    my_op.sem_num = 2; // scelgo il semaforo atomi
+   my_op.sem_num = 2; // scelgo il semaforo atomi
     my_op.sem_flg = 0;
     my_op.sem_op = -1;    // occupo il semaforo
     semop(id, &my_op, 1); // eseguo le operazioni
-
+    
     my_op.sem_num = 1; // scelgo il semaforo prioritario
     my_op.sem_flg = 0;
     my_op.sem_op = -1;    // occupo il semaforo
     semop(id, &my_op, 1); // eseguo le operazioni
         
     // sezione critica inizio
-
+    printf("SEMAFORO SUPERATI-----------------\n");
     struct memCond *shared_struct; /* shared data struct */
     int idMemoriaCondivisa = shmget(KEY_MEMORIA_CONDIVISA, sizeof(shared_struct), IPC_CREAT | 0666);
     if (idMemoriaCondivisa == -1)
@@ -232,7 +234,7 @@ void scissione(int* nAtomico, int argc, char *argv[])
 
     my_op.sem_num = 2;    // scelgo il semaforo prioritario
     my_op.sem_op = 1;     // rilascio il semaforo prioritario
-    semop(id, &my_op, 1); // eseguo le operazioni
+    semop(id, &my_op, 1); // eseguo le operazioni*/
 }
 void removePid(int pid,int idSemaforo, int nAtomico){
     struct sembuf my_op;
@@ -252,7 +254,7 @@ void removePid(int pid,int idSemaforo, int nAtomico){
         fprintf(stderr, "Errore nell'accesso col semaforo di partenza\n");
         exit(EXIT_FAILURE);
     }
-
+    printf("SEMAFORO SUPERATI-----------------\n");
     int idMemoriaCondivisa = shmget(KEY_MEMORIA_CONDIVISA,sizeof(dummy),IPC_CREAT | 0666);
     if(idMemoriaCondivisa == -1){
         fprintf(stderr, "Errore nel ottenere l'identificatore della memoria condivisa");
