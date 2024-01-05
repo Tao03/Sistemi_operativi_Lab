@@ -98,7 +98,7 @@ void main(int argc,char * argv[])
         }
         else if(pidInibitore == -1)
         {
-            perror("Errore nella fork di inibitore");
+            fprintf(stderr,"Errore nella fork di inibitore");
             exit(1);
         }
         else

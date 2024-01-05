@@ -42,13 +42,13 @@ void aggiungiAtomo(int pid, int energiaLiberata)
     int idMemoriaCondivisa = shmget(KEY_MEMORIA_CONDIVISA, sizeof(shared_struct), IPC_CREAT | 0666);
     if (idMemoriaCondivisa == -1)
     {
-        perror("Error in shmeg ");
+        fprintf(stderr,"Error in shmeg ");
         exit(EXIT_FAILURE);
     }
     shared_struct = (struct memCond *)shmat(idMemoriaCondivisa, NULL, 0);
     if (shared_struct == NULL)
     {
-        perror("Errore in shmat ");
+        fprintf(stderr,"Errore in shmat ");
         exit(EXIT_FAILURE);
     }
     int i = 0;
@@ -56,7 +56,7 @@ void aggiungiAtomo(int pid, int energiaLiberata)
     int *old_array = (int *)shmat(old_shm_id, NULL, 0);
     if (old_array == NULL)
     {
-        perror("Error: %d");
+        fprintf(stderr,"Error: %d");
     }
 
     int index = check(old_array, shared_struct->nAtomi);
@@ -100,7 +100,7 @@ void aggiungiAtomo(int pid, int energiaLiberata)
 
         if (new_shm_id == -1)
         {
-            perror("Errore della creazione dell'array di interi  ");
+            fprintf(stderr,"Errore della creazione dell'array di interi  ");
         }
         // Aggiornamento id nuovo array con dimensione ( n + 1 )
 
@@ -125,7 +125,7 @@ void aggiungiAtomo(int pid, int energiaLiberata)
 
         if (shmdt(new_array) == -1)
         {
-            perror("Errore nella chiusura dell'array condiviso nell'alimentatore: ");
+            fprintf(stderr,"Errore nella chiusura dell'array condiviso nell'alimentatore: ");
             exit(EXIT_FAILURE);
         }
         //da qui sono sicuro che la scissione sia avvenuta con successo
@@ -167,13 +167,13 @@ void scissione(int* nAtomico, int argc, char *argv[])
     int idMemoriaCondivisa = shmget(KEY_MEMORIA_CONDIVISA, sizeof(shared_struct), IPC_CREAT | 0666);
     if (idMemoriaCondivisa == -1)
     {
-        perror("Error in shmeg ");
+        fprintf(stderr,"Error in shmeg ");
         exit(EXIT_FAILURE);
     }
     shared_struct = (struct memCond *)shmat(idMemoriaCondivisa, NULL, 0);
     if (shared_struct == NULL)
     {
-        perror("Errore in shmat ");
+        fprintf(stderr,"Errore in shmat ");
         exit(EXIT_FAILURE);
     }
     int esito = 1;
@@ -204,7 +204,7 @@ void scissione(int* nAtomico, int argc, char *argv[])
             sprintf(argv[0], "%d", nAtomicoFiglio); // converto il numero atomico in stringa (per passarlo come parametro)
             // argv[1]=nAtomicoFiglio;
             execve("Atomo", argv, NULL); //<- esegue il figlio con il nuovo numero atomico
-            perror("Errore: ");
+            fprintf(stderr,"Errore: ");
             /*DEVE INVIARE UN SEGNALE ALL'ATOMO PER TERMINARE, ricordarsi la quarta condizione di uscita*/
             kill(SIGUSR2,strtol(argv[1],NULL,10));
             exit(1);
