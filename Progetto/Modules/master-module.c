@@ -289,6 +289,8 @@ void inserisciInibitore(int pidInibitore)
 */
 void stampa()
 {
+    /*system("clear");*/
+
     printf("----------------------STATISTICHE----------------------\n");
     int idMemoriaCondivisa = shmget(KEY_MEMORIA_CONDIVISA, sizeof(dummy), IPC_CREAT | 0666);
 

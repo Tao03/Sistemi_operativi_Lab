@@ -163,7 +163,6 @@ void scissione(int* nAtomico, int argc, char *argv[])
     semop(id, &my_op, 1); // eseguo le operazioni
         
     // sezione critica inizio
-    printf("SEMAFORO SUPERATI-----------------\n");
     struct memCond *shared_struct; /* shared data struct */
     int idMemoriaCondivisa = shmget(KEY_MEMORIA_CONDIVISA, sizeof(shared_struct), IPC_CREAT | 0666);
     if (idMemoriaCondivisa == -1)
@@ -254,7 +253,7 @@ void removePid(int pid,int idSemaforo, int nAtomico){
         fprintf(stderr, "Errore nell'accesso col semaforo di partenza\n");
         exit(EXIT_FAILURE);
     }
-    printf("SEMAFORO SUPERATI-----------------\n");
+    
     int idMemoriaCondivisa = shmget(KEY_MEMORIA_CONDIVISA,sizeof(dummy),IPC_CREAT | 0666);
     if(idMemoriaCondivisa == -1){
         fprintf(stderr, "Errore nel ottenere l'identificatore della memoria condivisa");

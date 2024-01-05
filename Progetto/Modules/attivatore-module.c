@@ -11,7 +11,9 @@
 #include "../Headers/attivatore.h"
 void handler(int signal)
 {
+    /* print di debug
     printf("Sono entrato nell'handler\n");
+    */
 }
 void scegliAtomoVittima()
 {
@@ -21,7 +23,6 @@ void scegliAtomoVittima()
     my_op . sem_flg = 0;
     my_op . sem_op = -1;//occupo il semaforo
     semop ( idsem, & my_op , 1) ;//eseguo le operazioni
-    printf("SEMAFORO LIBERO PER ATTIVATORE\n");
     struct sigaction sa;
     sigset_t my_mask;
     sa.sa_handler=&handler;
