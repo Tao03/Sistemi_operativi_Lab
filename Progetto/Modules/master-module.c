@@ -8,14 +8,18 @@ void P(int nSem){
     my_op.sem_num = nSem; /* only one semaphore in array of semaphores */
     my_op.sem_flg = 0; /* no flag : default behavior */
     my_op.sem_op = 1;  /* accessing the resource */
-    semop(idSemaforo, &my_op, 1);
+    if(semop ( idSemaforo , & my_op , 1) == -1){
+        fprintf(stderr,"Errore sul semaforo: ");
+    }
 }
 /*Operazione sul semaforo per incrementare*/
 void V(int nSem){
     my_op.sem_num = nSem; /* only one semaphore in array of semaphores */
     my_op.sem_flg = 0; /* no flag : default behavior */
     my_op.sem_op = -1;  /* accessing the resource */
-    semop(idSemaforo, &my_op, 1);
+    if(semop ( idSemaforo , & my_op , 1) == -1){
+        fprintf(stderr,"Errore sul semaforo: ");
+    }
 }
 
 int setSemaforo()

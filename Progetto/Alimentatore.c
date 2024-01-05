@@ -9,14 +9,10 @@
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
-
-
-
 # include "Headers/alimentatore.h"
 # include <signal.h>
 # include <string.h>
 
-//int sigaction ( int signum , const struct sigaction * act , struct sigaction * oldact );
 int nKids;
 int flag=0;
 int exitSignal = 0;
@@ -35,21 +31,13 @@ int main(int argc, char* argv[])
     s_exit.sa_handler = handle_exit; /* set the handler */
     sigaction(SIGUSR1, &s_exit, NULL);  /* CASE 1: set new handler */
 
-    struct sembuf my_op ;
-    my_op . sem_num = 0; /* only one semaphore in array of semaphores */
-    my_op . sem_flg = 0; /* no flag : default behavior */
-    my_op . sem_op = -1; /* accessing the resource */
     int idSemaforo = semget(KEY_SEMAFORO, 3, IPC_CREAT | 0666);
+    
 
 
-
-    if(semop ( idSemaforo , & my_op , 1) == -1){
-        perror("Errore sul semaforo: ");
-    }
-    my_op . sem_op = 1; /* accessing the resource */
-    if(semop ( idSemaforo , & my_op , 1) == -1){
-        perror("Errore sul   semaforo: ");
-    } 
+    V(0);
+    P(0);
+    printf("DATO IL VIA\n");
 
 
     while(exitSignal == 0) //va sostituito con l'attesa di terminazione dal master
@@ -79,12 +67,7 @@ int main(int argc, char* argv[])
 }
 void handle_signal(int signum){
     flag = 1;
-    //printf("CHECKPOINT: segnale arrivato\n");
-    //printf("CHECKPOINT: HANDLE FINITO\n");
 }
 void handle_exit(int signum){
     exitSignal = 1;
-    printf("TERMINAZIONE\n");
-    //printf("CHECKPOINT: segnale arrivato\n");
-    //printf("CHECKPOINT: HANDLE FINITO\n");
 }
