@@ -181,7 +181,7 @@ void scissione(int* nAtomico, int argc, char *argv[])
     if(shared_struct->pidInibitore != 0)
     {
         // Invia un segnale SIGUSR2 a pidInibitore
-        printf("ATOMO %d: Ho inviato un segnale SIGUSR2 a %d\n",getpid());
+        printf("ATOMO %d: Ho inviato un segnale SIGUSR2 a %d\n",getpid(),shared_struct->pidInibitore);
         kill(shared_struct->pidInibitore, SIGUSR2);
 
         //si collega alla coda di messaggi
