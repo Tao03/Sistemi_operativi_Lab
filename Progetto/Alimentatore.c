@@ -17,11 +17,17 @@ int nKids;
 int flag=0;
 int exitSignal = 0;
 
+void handle_signal(int signum){
+    flag = 1;
+}
+void handle_exit(int signum){
+    exitSignal = 1;
+}
+
 int main(int argc, char* argv[])
 {
 
-    void handle_signal(int signal); /* the handler */
-    void handle_exit(int signal); /* the handler */
+   
     struct sigaction new, s_exit;     
     memset(&new,0,sizeof(new));     /* set all bytes to zero */
     new.sa_handler = handle_signal; /* set the handler */
@@ -64,10 +70,4 @@ int main(int argc, char* argv[])
         
     }
     
-}
-void handle_signal(int signum){
-    flag = 1;
-}
-void handle_exit(int signum){
-    exitSignal = 1;
 }
