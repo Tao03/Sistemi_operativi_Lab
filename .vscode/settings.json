@@ -16,7 +16,8 @@
         "string.h": "c",
         "msg.h": "c",
         "unistd.h": "c",
-        "time.h": "c"
+        "time.h": "c",
+        "cerrno": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

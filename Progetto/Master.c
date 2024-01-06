@@ -90,7 +90,6 @@ void main(int argc,char * argv[])
         pidInibitore = fork();
         if(pidInibitore == 0)
         {
-            printf("Inibitore avviato\n");
             char *const array[2] = {"0", 0};
             execv("Inibitore", array);
             fprintf(stderr, "Errore nel creare il processo inibitore, linea %d",__LINE__);

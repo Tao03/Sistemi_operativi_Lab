@@ -7,6 +7,31 @@
 #include <sys/shm.h>
 #include <sys/types.h>
 #include <sys/msg.h>
+
+struct sembuf my_op;
+int idSemaforo;
+
+/*Operazione sul semaforo per decrementare*/
+void P(int nSem){
+    idSemaforo = semget(KEY_SEMAFORO, 1, 0666); // ottengo id del semaforo
+    my_op.sem_num = nSem; /* only one semaphore in array of semaphores */
+    my_op.sem_flg = 0; /* no flag : default behavior */
+    my_op.sem_op = 1;  /* accessing the resource */
+    if(semop ( idSemaforo , & my_op , 1) == -1){
+        fprintf(stderr,"Errore sul semaforo: ");
+    }
+}
+/*Operazione sul semaforo per incrementare*/
+void V(int nSem){
+    idSemaforo = semget(KEY_SEMAFORO, 1, 0666); // ottengo id del semaforo
+    my_op.sem_num = nSem; /* only one semaphore in array of semaphores */
+    my_op.sem_flg = 0; /* no flag : default behavior */
+    my_op.sem_op = -1;  /* accessing the resource */
+    if(semop ( idSemaforo , & my_op , 1) == -1){
+        fprintf(stderr,"Errore sul semaforo: ");
+    }
+}
+
 int max(int a, int b)
 {
     if (a > b)
@@ -56,7 +81,7 @@ void aggiungiAtomo(int pid, int energiaLiberata)
     int *old_array = (int *)shmat(old_shm_id, NULL, 0);
     if (old_array == NULL)
     {
-        fprintf(stderr,"Error: %d");
+        fprintf(stderr,"Errore nel collegarsi al vettore condiviso, errore %d, linea %d",errno,__LINE__);
     }
 
     int index = check(old_array, shared_struct->nAtomi);
@@ -131,34 +156,18 @@ void aggiungiAtomo(int pid, int energiaLiberata)
 
 void scissione(int* nAtomico, int argc, char *argv[])
 {
-    /**
-     * Se il numero atomico dell'atomo nuovo è un valore casuale tra [1,N_ATOMICO_MAX] 
-     * Può essere che il numero atomodico del processo padre sia negativo, cosa si può fare?
-     * Per ora facciamo che non possa essere negativo però 
-     * il numero atomico del figlio + numero atomico del padre = numero atomico del padre prima della scissione
-     *  e per farlo basta assegnare al processo atomo nuovo un valore casuale tra [1,numero atomico del padre prima della scissione]
-    */
     srand(time(NULL));
     int nAtomicoFiglio = rand() % *nAtomico; // numero atomico del figlio
-    *nAtomico -= nAtomicoFiglio;                  // aggiorno il numero atomico del padre
-    printf("ATOMO %d: Numero atomico del padre: %d\n",getpid(),*nAtomico);
+    *nAtomico -= nAtomicoFiglio;                  // aggiorno il numero atomico del padrE
     int id = semget(KEY_SEMAFORO, 1, 0666); // ottengo id del semaforo
     struct sembuf my_op;
 
     
-
-   my_op.sem_num = 2; // scelgo il semaforo atomi
-    my_op.sem_flg = 0;
-    my_op.sem_op = -1;    // occupo il semaforo
-    semop(id, &my_op, 1); // eseguo le operazioni
-    
-    my_op.sem_num = 1; // scelgo il semaforo prioritario
-    my_op.sem_flg = 0;
-    my_op.sem_op = -1;    // occupo il semaforo
-    semop(id, &my_op, 1); // eseguo le operazioni
+    V(2); //-1
+    V(1);
         
     // sezione critica inizio
-    struct memCond *shared_struct; /* shared data struct */
+    struct memCond *shared_struct;
     int idMemoriaCondivisa = shmget(KEY_MEMORIA_CONDIVISA, sizeof(shared_struct), IPC_CREAT | 0666);
     if (idMemoriaCondivisa == -1)
     {
@@ -175,8 +184,6 @@ void scissione(int* nAtomico, int argc, char *argv[])
     int energia = 0;
     if(shared_struct->pidInibitore != 0)
     {
-        // Invia un segnale SIGUSR2 a pidInibitore
-        printf("ATOMO %d: Ho inviato un segnale SIGUSR2 a %d\n",getpid(),shared_struct->pidInibitore);
         kill(shared_struct->pidInibitore, SIGUSR2);
 
         //si collega alla coda di messaggi
@@ -192,62 +199,35 @@ void scissione(int* nAtomico, int argc, char *argv[])
 
     if(esito == 1)
     {
-        printf("ESITO POSITIVO\n");
         int pid = fork();
-        if (pid == 0) // è il figlio
+        if (pid == 0) 
         {
             sprintf(argv[0], "%d", nAtomicoFiglio); // converto il numero atomico in stringa (per passarlo come parametro)
-            // argv[1]=nAtomicoFiglio;
             execve("Atomo", argv, NULL); //<- esegue il figlio con il nuovo numero atomico
             fprintf(stderr,"Errore: ");
-            /*DEVE INVIARE UN SEGNALE ALL'ATOMO PER TERMINARE, ricordarsi la quarta condizione di uscita*/
-            kill(SIGUSR2,strtol(argv[1],NULL,10));
             exit(1);
         }
-        else // è il padre
-        {
+        // Nel caso la fork fallisce si esce per meltdown
+        else if(pid == -1){
+             fprintf(stderr,"Errore nella fork dell'atomo, linea %d ",__LINE__);
+             kill(SIGUSR2,strtol(argv[1],NULL,10));
+        }else{
             // calcolo l'energia liberata dalla scissione
             int energiaLiberata = nAtomicoFiglio * (*nAtomico) - max(nAtomicoFiglio, *nAtomico) - energia;
 
             // aggiung il pid del figlio nel vettore dei pid e aggiorno l'energia
             aggiungiAtomo(pid, energiaLiberata);
         }
-        printf("SCISSIONE ESEGUITA\n");
-    }
-    else
-    {
-        printf("ESITO NEGATIVO\n");
     }
     
 
     // sezione critica fine
-    my_op.sem_num = 1; // scelgo il semaforo prioritario
-    my_op.sem_flg = 0;
-    my_op.sem_op = 1;     // rilascio il semaforo atomo
-    semop(id, &my_op, 1); // eseguo le operazioni
-
-    my_op.sem_num = 2;    // scelgo il semaforo prioritario
-    my_op.sem_op = 1;     // rilascio il semaforo prioritario
-    semop(id, &my_op, 1); // eseguo le operazioni*/
+    P(1);
+    P(2);
 }
-void removePid(int pid,int idSemaforo, int nAtomico){
-    struct sembuf my_op;
-
-    my_op.sem_num = 2; // scelgo il semaforo di sincronizzazione
-    my_op.sem_flg = 0;
-    my_op.sem_op = -1; // occupo il semaforo
-    if (semop(idSemaforo, &my_op, 1) == -1)
-    {
-        fprintf(stderr, "Errore nell'accesso col semaforo di partenza\n");
-        exit(EXIT_FAILURE);
-    }
-    my_op.sem_num = 1; // scelgo il semaforo di sincronizzazione
-    my_op.sem_op = -1; // occupo il semaforo
-    if (semop(idSemaforo, &my_op, 1) == -1)
-    {
-        fprintf(stderr, "Errore nell'accesso col semaforo di partenza\n");
-        exit(EXIT_FAILURE);
-    }
+void removePid(int pid, int nAtomico){
+    V(2);
+    V(1);
     
     int idMemoriaCondivisa = shmget(KEY_MEMORIA_CONDIVISA,sizeof(dummy),IPC_CREAT | 0666);
     if(idMemoriaCondivisa == -1){
@@ -256,30 +236,16 @@ void removePid(int pid,int idSemaforo, int nAtomico){
     }
     struct memCond * datap = shmat(idMemoriaCondivisa,NULL,0);
     datap->scorie = datap->scorie + nAtomico;
+    datap->scorieUtilmoSecondo = datap->scorieUtilmoSecondo + nAtomico;
     int* array = shmat(datap->id_vettore_condiviso,NULL,0);
     int index = find(pid,array,datap->nAtomi);
     if(index != -1){
         array[index] = -1;
-        printf("ATOMO %d: Sono appena stato eliminato\n",getpid());
     }else{
         printf("Errore, sembra che il processo da uccidere non esista\n");
     }
-
-    my_op.sem_num =1; // scelgo il semaforo di sincronizzazione
-    my_op.sem_flg = 0;
-    my_op.sem_op = 1; // occupo il semaforo
-    if (semop(idSemaforo, &my_op, 1) == -1)
-    {
-        fprintf(stderr, "Errore nell'accesso col semaforo di partenza\n");
-        exit(EXIT_FAILURE);
-    }
-    my_op.sem_num = 2; // scelgo il semaforo di sincronizzazione
-    my_op.sem_op = 1; // occupo il semaforo
-    if (semop(idSemaforo, &my_op, 1) == -1)
-    {
-        fprintf(stderr, "Errore nell'accesso col semaforo di partenza\n");
-        exit(EXIT_FAILURE);
-    }
+    P(1);
+    P(2);
 
    
 }

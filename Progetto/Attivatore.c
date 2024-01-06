@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
      * Inizializzazione handler del timer
     */
     struct sigaction sa;
-    sigset_t my_mask;
+    //sigset_t my_mask;
     sa.sa_handler=&handle_signal;
     if(sigaction(SIGALRM, &sa, NULL) == -1)
     {
@@ -35,29 +35,18 @@ int main(int argc, char* argv[])
         fprintf(stderr, "Failed setting SIGHUP handler\n");
     }
 
-    int sem_id = semget(KEY_SEMAFORO, 0, 0);
-    struct sembuf my_op ;
-    my_op . sem_num = 0; /* only one semaphore in array of semaphores */
-    my_op . sem_flg = 0; /* no flag : default behavior */
-    my_op . sem_op = -1; /* accessing the resource */
-    if(semop(sem_id,&my_op,1)==-1){
-        fprintf(stderr,"Errore nell'accesso col semaforo di partenza\n");
-        exit(EXIT_FAILURE);
-    }
-    my_op . sem_op = 1; /* accessing the resource */
-    if(semop(sem_id,&my_op,1)==-1){
-        fprintf(stderr,"Errore nell'accesso col semaforo di partenza\n");
-        exit(EXIT_FAILURE);
-    }
+    
     //attende che il master dia il via alla sincronizzazione, da sostituire con segnale di sincronizzazione del master
-    printf("PID ATTIVATORE:%d\n",getpid());
-    alarm(TIMER_ATTIVATORE);
+    V(0);
+    P(0);
+
+    
+
     while(1) //finchè il processo master non termina
     {
         
-        alarm(TIMER_ATTIVATORE);
+        alarm(STEP_ATTIVATORE);
         pause();
-        
         scegliAtomoVittima();  
         
     }

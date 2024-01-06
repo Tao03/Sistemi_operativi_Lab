@@ -48,9 +48,6 @@ void creaAtomi()
         fprintf(stderr, "Errore nel ottenere l'identificatore del vettore di semafori , linea %d", __LINE__);
     }
 
-    /**
-     * Dobbiamo innanzitutto allargare la dimensione del vettorei dei pid processi atomo
-     */
     char pidMaster[100];
     sprintf(pidMaster, "%d", getppid()); // converto il numero atomico in stringa (per passarlo come parametro)
     V(1);
@@ -122,7 +119,7 @@ void add_int_to_shared_array(struct memCond *shared_struct, int pid)
         fprintf(stderr, "Errore nel ottenere il vettore condiviso , linea %d, errore%d\n", __LINE__, errno);
         exit(EXIT_FAILURE);
     }
-
+    //Si controlla se all'interno del vettore dei pid c'è una cella libera attraverso il metodo check
     int index = check(old_array, shared_struct->nAtomi);
     if (index != -1)
     {
@@ -134,10 +131,17 @@ void add_int_to_shared_array(struct memCond *shared_struct, int pid)
         }
     }
     else
+    /**Arrivando a questo ramo del costrutto if significa che non c'è nessuna cella all'interno della memoria condivisa libera
+    quindi si deve allargare la memoria    
+    */
     {
+        
         int *private_array = malloc(sizeof(int) * shared_struct->nAtomi);
+
+        // Si carica in un array locale gli elementi salvati in un array condiviso
         memcpy(private_array, old_array, sizeof(int) * (shared_struct->nAtomi));
 
+        // Scollegamento del vecchio array
         if (shmdt(old_array) == -1)
         {
             fprintf(stderr, "Errore nel scollegarsi dal vettore condiviso , linea %d, errore %d\n", __LINE__, errno);
@@ -149,6 +153,7 @@ void add_int_to_shared_array(struct memCond *shared_struct, int pid)
             exit(EXIT_FAILURE);
         }
 
+        //Si aggiorna il numero di atomi esistenti
         shared_struct->nAtomi = shared_struct->nAtomi + 1;
 
         // Creazione dell'array condiviso di dimensione n + 1
@@ -176,17 +181,20 @@ void add_int_to_shared_array(struct memCond *shared_struct, int pid)
 
         // Copia i dati dal vecchio vettore al nuovo
         memcpy(new_array, private_array, (shared_struct->nAtomi - 1) * sizeof(int));
-        // Aggiungi il nuovo intero al vettore
+
+        
         if (new_array == NULL)
         {
             fprintf(stderr, "Errore nella copia del vecchio array attraverso il metodo memcpy(), linea %d, errore %d", __LINE__, errno);
         }
         else
         {
+            // Aggiungi il nuovo intero al vettore
             new_array[shared_struct->nAtomi - 1] = pid;
 
             
         }
+        // Scollegamento dell'array condiviso
         if (shmdt(new_array) == -1)
             {
                 fprintf(stderr, "Errore nel scollegarsi dal vettore condiviso , linea %d", __LINE__);

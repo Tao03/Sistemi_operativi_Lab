@@ -12,9 +12,9 @@
 #define N_ATOMICO_MIN 25 //numero atomico minimo per fare la scissione
 #define N_ATOMICO_MAX 100 //numero atomico massimo che può avere un atomo
 #define N_NUOVI_ATOMI 5
-#define TIMER_ALIMENTATORE 1
+#define STEP_ALIMENTAZIONE  1
 #define TIMER_PRELEVA 1
-#define TIMER_ATTIVATORE 2
+#define STEP_ATTIVATORE 2
 
 
 
@@ -35,6 +35,7 @@ extern struct memCond
         int nAttivazioniUltimoSecondo;
         int nScissioniUltimoSecondo;
         int eTotUltimoSecondo;
+        int energiaAssorbita;
 
     }dummy;// è solo per la creazione della memoria condivisa
 

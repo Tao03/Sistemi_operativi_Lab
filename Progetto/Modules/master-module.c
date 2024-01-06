@@ -310,6 +310,7 @@ void stampa()
     printf("Numero di scissioni: %d, nell'ultimo secondo ci sono stati %d scissioni in più\n", datap->nScissioni,datap->nScissioniUltimoSecondo);
     printf("Numero di attivazioni: %d, nell'ultimo secondo ci sono state %d attivazioni in più\n", datap->nAttivazioni,datap->nAttivazioniUltimoSecondo);
     printf("Energia consumata: %d\n", datap->eConsumata);
+    printf("Energia prelevata dall'inibitore: %d\n",datap->energiaAssorbita);
     datap->scorieUtilmoSecondo = 0;
     datap->eTotUltimoSecondo = 0;
     datap->nScissioniUltimoSecondo = 0;
