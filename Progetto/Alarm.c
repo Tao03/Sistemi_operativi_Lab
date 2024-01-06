@@ -19,9 +19,9 @@ int main(int argc, char * argv[]){
 
     struct sigaction s1;
     void handle_signal(int signal);
-    memset(&s1, 0, sizeof(s1));    /* set all bytes to zero */
-    s1.sa_handler = handle_signal; /* set the handler */
-    sigaction(SIGALRM, &s1, NULL); /* CASE 1: set new handler */
+    memset(&s1, 0, sizeof(s1));   
+    s1.sa_handler = handle_signal; 
+    sigaction(SIGALRM, &s1, NULL); 
 
 
     printf("Timer avviato per %d secondi.\n", SIM_DURATION);

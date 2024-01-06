@@ -75,11 +75,6 @@ void aggiungiAtomo(int pid, int energiaLiberata)
     {
         int *private_array = malloc(sizeof(int) * shared_struct->nAtomi);
         memcpy(private_array, old_array, sizeof(int) * (shared_struct->nAtomi));
-        /*for(int i = 0; i<shared_struct->nAtomi;i++){
-            private_array[i] = old_array[i];
-        }*/
-        // printf("Puntatore del vecchio array: %p\n",old_array);
-        // printf("Puntatore dell' array privato: %p\n",private_array);
         //  Elimina l'array condiviso
         if (shmdt(old_array) == -1)
         {

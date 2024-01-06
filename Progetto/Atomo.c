@@ -49,11 +49,6 @@ int main(int argc, char* argv[]){
     while (1) //da sostituire col segnale di terminazione
     {
         //l'atomo non fa nulla se non viene effettuata la scissione
-        /*while(flag==0)
-        */
-
-
-       
         wait(NULL);
         if(flag == 0){
             pause();

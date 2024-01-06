@@ -4,12 +4,10 @@
 
 void handle_signal(int signal)
 {
-    //flag=1;   
+    //serve per svegliare il processo
 }
 void handle_sighup(int signal)
 {
-    //master=0;
-    //printf("Sono attivatore e ho ricevuto SIGHUP\n");
     exit(EXIT_SUCCESS);
 }
 
@@ -38,7 +36,6 @@ int main(int argc, char* argv[])
     }
 
     int sem_id = semget(KEY_SEMAFORO, 0, 0);
-    //while (semctl(sem_id, 0, GETVAL)==-1){}
     struct sembuf my_op ;
     my_op . sem_num = 0; /* only one semaphore in array of semaphores */
     my_op . sem_flg = 0; /* no flag : default behavior */
@@ -57,14 +54,12 @@ int main(int argc, char* argv[])
     alarm(TIMER_ATTIVATORE);
     while(1) //finchè il processo master non termina
     {
-        //printf("PID attivatore: %d\n",getpid());
+        
         alarm(TIMER_ATTIVATORE);
         pause();
-        //printf("SONO ATTIVATORE NEL CICLO\n");
+        
         scegliAtomoVittima();  
-        //printf("ATOMO SCELTO\n");
-        //controllo che il semaforo prioritario sia libero
-        //accedo a memoria condivisa
+        
     }
-    //printf("SONO ATTIVATORE E TERMINO\n");
+    
 }
