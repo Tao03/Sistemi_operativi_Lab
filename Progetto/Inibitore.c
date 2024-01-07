@@ -14,6 +14,8 @@ struct sembuf my_op;
 int idSemaforo;
 // Variabile globale per la coda di messaggi
 int coda;
+
+
 /*Operazione sul semaforo per decrementare*/
 void P(int nSem){
     idSemaforo = semget(KEY_SEMAFORO, 3, IPC_CREAT | 0666);

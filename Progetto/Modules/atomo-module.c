@@ -126,10 +126,8 @@ void aggiungiAtomo(int pid, int energiaLiberata)
 
         shared_struct->id_vettore_condiviso = new_shm_id;
 
-        // int* temp_array = malloc(sizeof(int)*(shared_struct->nAtomi));
-
         int *new_array = (int *)shmat(new_shm_id, NULL, 0);
-        // printf("Primo processo: %d",new_array[0]);
+
         if (new_array == NULL)
         {
 
@@ -158,7 +156,7 @@ void scissione(int* nAtomico, int argc, char *argv[])
 {
     srand(time(NULL));
     int nAtomicoFiglio = rand() % *nAtomico; // numero atomico del figlio
-    *nAtomico -= nAtomicoFiglio;                  // aggiorno il numero atomico del padrE
+    *nAtomico -= nAtomicoFiglio;             // aggiorno il numero atomico del padrE
     int id = semget(KEY_SEMAFORO, 1, 0666); // ottengo id del semaforo
     struct sembuf my_op;
 
@@ -180,10 +178,14 @@ void scissione(int* nAtomico, int argc, char *argv[])
         fprintf(stderr,"Errore in shmat ");
         exit(EXIT_FAILURE);
     }
+    /**
+     * Preimposto i valori dell'esito della scissione (senza inibitore è = 1) e dell'energia (senza inibitore è = 0)
+    */
     int esito = 1;
     int energia = 0;
     if(shared_struct->pidInibitore != 0)
     {
+        //se c'è un inibitore devo inviare un segnale SIGUSR2 ad esso per regolare la scissione
         kill(shared_struct->pidInibitore, SIGUSR2);
 
         //si collega alla coda di messaggi
@@ -192,6 +194,8 @@ void scissione(int* nAtomico, int argc, char *argv[])
         int coda = msgget(KEY_CODA_MESSAGGI, IPC_CREAT | 0666);
         // Aspetta un messaggio sulla coda di messaggi
         msgrcv(coda, &msg, sizeof(msg) - sizeof(long), 0, 0);
+
+        //aggiorno i valori di esito e energia
         esito = msg.esito;
         energia = msg.energia;
     }
@@ -212,7 +216,10 @@ void scissione(int* nAtomico, int argc, char *argv[])
              fprintf(stderr,"Errore nella fork dell'atomo, linea %d ",__LINE__);
              kill(SIGUSR2,strtol(argv[1],NULL,10));
         }else{
-            // calcolo l'energia liberata dalla scissione
+            /**
+            *calcolo l'energia liberata dalla scissione
+            *energia si riferisce a quella che l'inibitore sottrae all'energia totale
+            */
             int energiaLiberata = nAtomicoFiglio * (*nAtomico) - max(nAtomicoFiglio, *nAtomico) - energia;
 
             // aggiung il pid del figlio nel vettore dei pid e aggiorno l'energia
