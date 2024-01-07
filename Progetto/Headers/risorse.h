@@ -3,7 +3,7 @@
 #define KEY_MEMORIA_CONDIVISA 1111
 #define KEY_ARRAY_CONDIVISO 1221
 #define KEY_CODA_MESSAGGI 1331
-#define N_ATOMI_INIT  10
+#define N_ATOMI_INIT  1000
 #define ENERGY_DEMAND 2000
 #define ENERGY_CONSUMPTION 100
 #define N_ATOMO_MAX 100
@@ -12,7 +12,7 @@
 #define N_ATOMICO_MIN 25 //numero atomico minimo per fare la scissione
 #define N_ATOMICO_MAX 100 //numero atomico massimo che può avere un atomo
 #define N_NUOVI_ATOMI 5
-#define STEP_ALIMENTAZIONE  9999999
+#define STEP_ALIMENTAZIONE  999999999
 #define TIMER_PRELEVA 1
 #define STEP_ATTIVATORE 2
 

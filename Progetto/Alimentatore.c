@@ -55,23 +55,22 @@ int main(int argc, char* argv[])
 
     //Usando soltanto V(0)  si bloccherebbe tutti gli altri processi che aspettano il via, quindi lo incrementiamo
     P(0);
-    my_time . tv_sec = 2;
+    my_time . tv_sec = 0;
     my_time . tv_nsec = STEP_ALIMENTAZIONE;
     
 
     while(exitSignal == 0) //va sostituito con l'attesa di terminazione dal master
     {
 
-        
+        printf("ciao\n");
         /*alarm(STEP_ALIMENTAZIONE);
         if(exitSignal == 1){
             exit(EXIT_SUCCESS);
         }*/
         //Si aspetta i processi figli atomo creati dall'alimentatore
         if(nanosleep (&my_time , NULL )!=0){
-            fprintf("Errore durante la chiamata a nanosleep, errno: %d, linea: %d",errno,__LINE__);
+            printf("Errore durante  la chiamata a nanosleep, errno: %d, linea: %d",errno,__LINE__);
         }
-    }
        
 
         /**Nel caso si riceve la terminazione di un qualsiasi processo figlio atomo prima di ricevere il segnale alarm
@@ -85,7 +84,7 @@ int main(int argc, char* argv[])
         }
         creaAtomi();
         //flagAlarm = 0;
-        
+}
         
 
         while( wait(NULL)!=-1);
