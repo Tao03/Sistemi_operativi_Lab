@@ -12,6 +12,7 @@
 # include "Headers/alimentatore.h"
 # include <signal.h>
 # include <string.h>
+struct timespec my_time ;
 
 // Viene asserito quando viene avviato l'allarme
 int flagAlarm=0;
@@ -54,34 +55,41 @@ int main(int argc, char* argv[])
 
     //Usando soltanto V(0)  si bloccherebbe tutti gli altri processi che aspettano il via, quindi lo incrementiamo
     P(0);
-
+    my_time . tv_sec = 2;
+    my_time . tv_nsec = STEP_ALIMENTAZIONE;
+    
 
     while(exitSignal == 0) //va sostituito con l'attesa di terminazione dal master
     {
 
         
-        alarm(STEP_ALIMENTAZIONE);
+        /*alarm(STEP_ALIMENTAZIONE);
         if(exitSignal == 1){
             exit(EXIT_SUCCESS);
-        }
+        }*/
         //Si aspetta i processi figli atomo creati dall'alimentatore
-        wait(NULL);
+        if(nanosleep (&my_time , NULL )!=0){
+            fprintf("Errore durante la chiamata a nanosleep, errno: %d, linea: %d",errno,__LINE__);
+        }
+    }
+       
 
         /**Nel caso si riceve la terminazione di un qualsiasi processo figlio atomo prima di ricevere il segnale alarm
          * Si mette in pause fino a quando non si riceve il segnale
          * **/
-        if(flagAlarm == 0){
+        /*if(flagAlarm == 0){
             pause();
-        }
+        }*/
         if(exitSignal == 1){
             exit(EXIT_SUCCESS);
         }
         creaAtomi();
-        flagAlarm = 0;
+        //flagAlarm = 0;
         
         
 
-        
+        while( wait(NULL)!=-1);
     }
     
-}
+    
+

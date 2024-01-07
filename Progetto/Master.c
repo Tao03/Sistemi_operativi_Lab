@@ -54,7 +54,7 @@ void main(int argc,char * argv[])
     {
         char *const dummy[2] = {"0", 0};
         execv("Attivatore", dummy);
-        fprintf(stderr, "Errore nel creare il processo attivatore, linea %d",__LINE__);
+        fprintf(stderr, "Errore nel  creare il processo attivatore, linea %d",__LINE__);
         exit(1);
     }
     pidAlimentatore = fork();
@@ -137,6 +137,7 @@ void main(int argc,char * argv[])
     /**
      * CORPO DEL CODICE
     */
+   printf("ciao\n");
     while (check == 0 && tempoScaduto == 0 && forkError == 0)
     {
         /**

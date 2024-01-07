@@ -304,7 +304,7 @@ void stampa()
         exit(EXIT_FAILURE);
     }
 
-    printf("Numero di atomi: %d\n", datap->nAtomi);
+    printf("Numero di atomi:     %d\n", datap->nAtomi);
     printf("Scorie totali: %d, nell'ultimo secondo c'è stato un incremento di %d scorie\n", datap->scorie,datap->scorieUtilmoSecondo);
     printf("Energia totale: %d, nell'ultimo secondo: %d\n", datap->eTot, datap->eTotUltimoSecondo);
     printf("Numero di scissioni: %d, nell'ultimo secondo ci sono stati %d scissioni in più\n", datap->nScissioni,datap->nScissioniUltimoSecondo);
