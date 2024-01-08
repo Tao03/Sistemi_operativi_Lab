@@ -38,10 +38,7 @@ int main(int argc, char* argv[])
 {
 
    
-    struct sigaction new, s_exit;     
-    memset(&new,0,sizeof(new));     /* set all bytes to zero */
-    new.sa_handler = handle_signal; /* set the handler */
-    sigaction(SIGALRM, &new, NULL);  /* CASE 1: set new handler */
+    struct sigaction s_exit;     
     
     memset(&s_exit,0,sizeof(s_exit));     /* set all bytes to zero */
     s_exit.sa_handler = handle_exit; /* set the handler */
@@ -61,29 +58,17 @@ int main(int argc, char* argv[])
 
     while(exitSignal == 0) //va sostituito con l'attesa di terminazione dal master
     {
-
-        printf("ciao\n");
-        /*alarm(STEP_ALIMENTAZIONE);
-        if(exitSignal == 1){
-            exit(EXIT_SUCCESS);
-        }*/
         //Si aspetta i processi figli atomo creati dall'alimentatore
         if(nanosleep (&my_time , NULL )!=0){
             printf("Errore durante  la chiamata a nanosleep, errno: %d, linea: %d",errno,__LINE__);
         }
        
 
-        /**Nel caso si riceve la terminazione di un qualsiasi processo figlio atomo prima di ricevere il segnale alarm
-         * Si mette in pause fino a quando non si riceve il segnale
-         * **/
-        /*if(flagAlarm == 0){
-            pause();
-        }*/
+        
         if(exitSignal == 1){
             exit(EXIT_SUCCESS);
         }
         creaAtomi();
-        //flagAlarm = 0;
 }
         
 

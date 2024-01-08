@@ -137,7 +137,6 @@ void main(int argc,char * argv[])
     /**
      * CORPO DEL CODICE
     */
-   printf("ciao\n");
     while (check == 0 && tempoScaduto == 0 && forkError == 0)
     {
         /**
